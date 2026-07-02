@@ -24,7 +24,7 @@
     --accent: #3b82f6;
     --accent-hover: #2563eb;
     --danger: #ef4444;
-    --max-width: 800px;
+    --max-width: 1000px;
   }
 
   * { box-sizing: border-box; }
@@ -47,9 +47,9 @@
     color: var(--fg);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 0;
     padding: 0.5rem 0.75rem;
-    transition: all 0.2s;
+    transition: all 0.15s;
   }
 
   button { cursor: pointer; background: var(--accent); color: white; border: none; font-weight: 500; }
@@ -65,7 +65,7 @@
   input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
   }
 
   .container {
@@ -74,19 +74,23 @@
     padding: 2rem 1.5rem 6rem 1.5rem;
   }
 
+  .header-section {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
   .site-title {
     font-size: 2rem;
     font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 1rem;
+    margin: 0;
   }
   .site-title a { color: var(--fg); text-decoration: none; }
 
   .status-line {
     font-size: 0.9rem;
     color: var(--fg-muted);
-    margin: 1rem 0 2rem 0;
+    margin: 1rem 0 0 0;
     display: flex;
     gap: 1rem;
     align-items: center;
@@ -96,8 +100,63 @@
   .badge { 
     vertical-align: middle; 
     margin-left: 6px;
-    border-radius: 3px;
     display: inline-block;
+  }
+
+  /* Categories section */
+  .categories-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .category-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .category-card:hover {
+    background: var(--surface-alt);
+    border-color: var(--accent);
+  }
+
+  .category-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: var(--accent);
+  }
+
+  .category-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+
+  .subcategories-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .subcategory-link {
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-alt);
+    border-left: 2px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    transition: all 0.15s;
+  }
+
+  .subcategory-link:hover {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(59, 130, 246, 0.05);
   }
 
   /* Article list (home view) */
@@ -107,24 +166,28 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0;
   }
 
   .article-list li { 
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-top: none;
     padding: 1.5rem;
-    transition: all 0.2s;
+    transition: all 0.15s;
+  }
+
+  .article-list li:first-child {
+    border-top: 1px solid var(--border);
   }
 
   .article-list li:hover {
-    border-color: var(--accent);
     background: var(--surface-alt);
+    border-color: var(--accent);
   }
 
   .article-list h2 { 
-    font-size: 1.3rem; 
+    font-size: 1.2rem; 
     margin: 0 0 0.5rem 0;
     font-weight: 600;
   }
@@ -142,8 +205,9 @@
     font-size: 0.85rem; 
     color: var(--fg-muted);
     display: flex;
-    gap: 0.75rem;
+    gap: 1rem;
     align-items: center;
+    margin: 0;
   }
 
   .visibility-tag {
@@ -151,14 +215,19 @@
     background: var(--surface-alt);
     border: 1px solid var(--border);
     font-size: 0.7rem;
-    padding: 0.35rem 0.6rem;
-    border-radius: 4px;
+    padding: 0.3rem 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     font-weight: 600;
   }
 
   /* Article view */
+  .article-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+  }
+
   .article-title { 
     font-size: 2.2rem; 
     font-weight: 700;
@@ -168,8 +237,21 @@
     gap: 1rem;
   }
 
+  .article-info {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+
+  .article-info span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   article.article-body { 
-    margin: 2rem 0;
+    margin: 0;
     line-height: 1.8;
   }
 
@@ -190,16 +272,21 @@
   article.article-body code {
     background: var(--surface-alt);
     padding: 0.2em 0.4em;
-    border-radius: 3px;
     font-size: 0.9em;
+    font-family: 'Monaco', 'Courier New', monospace;
   }
 
   article.article-body pre {
     background: var(--surface-alt);
     border: 1px solid var(--border);
     padding: 1rem;
-    border-radius: 6px;
     overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  article.article-body pre code {
+    background: none;
+    padding: 0;
   }
 
   article.article-body blockquote {
@@ -230,8 +317,7 @@
     color: var(--accent);
     padding: 0.5rem 1rem;
     border: 1px solid var(--accent);
-    border-radius: 6px;
-    transition: all 0.2s;
+    transition: all 0.15s;
   }
 
   .article-actions a:hover {
@@ -255,7 +341,6 @@
   /* HTML embed styling */
   .html-embed-block {
     border: 2px solid var(--accent);
-    border-radius: 8px;
     padding: 1rem;
     margin: 1rem 0;
     background: rgba(59, 130, 246, 0.05);
@@ -286,7 +371,6 @@
     padding: 2rem;
     width: 100%;
     max-width: 380px;
-    border-radius: 8px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   }
   .modal-box h2 { 
@@ -306,7 +390,6 @@
     border: 1px solid var(--danger);
     color: #fca5a5;
     padding: 0.75rem;
-    border-radius: 6px;
     display: none;
   }
   .modal-error.show { display: block; }
@@ -345,12 +428,10 @@
     border: 1px solid var(--border);
     border-top: none;
     background: var(--surface-alt);
-    border-radius: 0 0 6px 6px;
   }
 
   #toolbar { 
-    border: 1px solid var(--border); 
-    border-radius: 6px 6px 0 0;
+    border: 1px solid var(--border);
     background: var(--surface);
     padding: 0.5rem;
   }
@@ -379,11 +460,14 @@
     gap: 1rem;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-top: none;
     padding: 1rem;
-    margin-bottom: 0.75rem;
     font-size: 0.9rem;
     align-items: center;
+  }
+
+  .own-articles-list li:first-child {
+    border-top: 1px solid var(--border);
   }
 
   .own-articles-list li:hover {
@@ -392,7 +476,6 @@
 
   .own-articles-list a {
     color: var(--accent);
-    margin: 0 0.5rem;
   }
 
   .editor-actions { 
@@ -413,7 +496,6 @@
   .gate-message { 
     border: 1px solid var(--border); 
     background: var(--surface);
-    border-radius: 8px;
     padding: 1.5rem; 
   }
 
@@ -470,7 +552,6 @@
   .ql-toolbar button:hover,
   .ql-toolbar button.ql-active,
   .ql-toolbar button:focus,
-  .ql-toolbar button.ql-active,
   .ql-toolbar .ql-picker-label:hover,
   .ql-toolbar .ql-picker-item:hover,
   .ql-toolbar .ql-picker-item.ql-selected {
@@ -485,41 +566,98 @@
   #delete-btn:hover {
     background: #dc2626;
   }
+
+  /* Category filter buttons */
+  .category-filter {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    color: var(--fg);
+    border-color: var(--accent);
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
 </style>
 </head>
 <body>
 
   <div class="container">
-    <h1 class="site-title" id="site-title-text"><a href="./">Articles</a></h1>
-    <div class="status-line" id="status-line"></div>
+    <div class="header-section">
+      <h1 class="site-title" id="site-title-text"><a href="./">Articles</a></h1>
+      <div class="status-line" id="status-line"></div>
+    </div>
 
-    <!-- HOME VIEW: article list -->
+    <!-- HOME VIEW: article list with categories -->
     <div id="view-home">
-      <ul class="article-list" id="article-list"><li>Loading articles…</li></ul>
+      <div class="categories-section" id="categories-section"></div>
+      
+      <div id="category-view" style="display:none;">
+        <h2 style="margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+          <a href="./" style="color: var(--fg-muted); font-size: 0.9rem;">All Articles</a> / <span id="category-title" style="color: var(--fg);"></span>
+        </h2>
+        <ul class="article-list" id="category-article-list"></ul>
+      </div>
+
+      <div id="all-articles-view">
+        <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Recent Articles</h2>
+        <ul class="article-list" id="article-list"></ul>
+      </div>
     </div>
 
-    <!-- ARTICLE VIEW: single article, reached via ?article=ID -->
+    <!-- ARTICLE VIEW: single article -->
     <div id="view-article" style="display:none;">
-      <div id="article-root"><p>Loading…</p></div>
+      <div id="article-root"><p>Loading...</p></div>
     </div>
 
-    <!-- EDITOR VIEW: reached via ?editor=1 (new) or ?editor=ID (edit) -->
+    <!-- EDITOR VIEW -->
     <div id="view-editor" style="display:none;">
       <div id="gate" class="gate-message" style="display:none;">
-        Please log in to use the editor. (Press <strong>Ctrl+Alt+L</strong>, or
+        Please log in to use the editor. (Press Ctrl+Alt+L, or
         <a id="gate-login-link" href="javascript:void(0)">click here</a>.)
       </div>
 
       <div id="editor-wrap" style="display:none;">
-        <h2 id="editor-heading">New article</h2>
+        <h2 id="editor-heading" style="margin-top: 0; margin-bottom: 1.5rem;">New article</h2>
 
         <div class="field-row">
           <label for="article-title">Title</label>
-          <input type="text" id="article-title" placeholder="Enter a descriptive title…" />
+          <input type="text" id="article-title" placeholder="Enter a descriptive title..." />
         </div>
 
         <div class="field-row">
-          <label for="article-visibility">Visibility label</label>
+          <label for="article-category">Category</label>
+          <select id="article-category">
+            <option value="">Select a category...</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="article-subcategory">Subcategory</label>
+          <select id="article-subcategory">
+            <option value="">Select a subcategory...</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="article-visibility">Visibility</label>
           <select id="article-visibility">
             <option value="public">Public</option>
             <option value="verified">Verified only</option>
@@ -578,14 +716,14 @@
 
         <div class="own-articles-list">
           <h3>Your articles</h3>
-          <ul id="own-articles"><li>Loading…</li></ul>
+          <ul id="own-articles"></ul>
         </div>
       </div>
     </div>
   </div>
 
   <footer class="site-footer" id="site-footer">
-    Core 09 Studios® 2026-2027. All rights reserved.
+    Core 09 Studios 2026-2027. All rights reserved.
   </footer>
 
   <!-- Login modal -->
@@ -612,7 +750,13 @@
       BADGE_SIZE_PX: 14,
       LOGIN_KEYBIND: { ctrlKey: true, altKey: true, shiftKey: false, key: "l" },
       SITE_TITLE: "Core 09 Blog",
-      FOOTER_TEXT: "Core 09 Studios® 2026-2027. All rights reserved.",
+      FOOTER_TEXT: "Core 09 Studios 2026-2027. All rights reserved.",
+      CATEGORIES: [
+        { id: "announcements", name: "Announcements", subcategories: ["Updates", "News", "Events"] },
+        { id: "guides", name: "Guides & Tutorials", subcategories: ["Beginner", "Intermediate", "Advanced"] },
+        { id: "community", name: "Community", subcategories: ["Discussions", "Showcase", "Help"] },
+        { id: "technical", name: "Technical", subcategories: ["Bug Reports", "Feature Requests", "Documentation"] },
+      ]
     };
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
@@ -748,7 +892,7 @@
       const name = (currentProfile && currentProfile.username) || currentUser.email;
       const badges = renderBadges(currentProfile);
       const newArticleHref = "?editor=1";
-      el.innerHTML = `<span>Logged in as <strong>${escapeHtml(name)}</strong>${badges}</span><a href="${newArticleHref}">✏️ New article</a><a id="status-logout" href="javascript:void(0)">Log out</a>`;
+      el.innerHTML = `<span>Logged in as <strong>${escapeHtml(name)}</strong>${badges}</span><a href="${newArticleHref}">New article</a><a id="status-logout" href="javascript:void(0)">Log out</a>`;
       document.getElementById("status-logout").addEventListener("click", () => signOut(auth));
     }
 
@@ -772,6 +916,9 @@
       showView("editor");
       const raw = params.get("editor");
       initEditorView(raw === "1" ? null : raw);
+    } else if (params.has("category")) {
+      showView("home");
+      initCategoryView(params.get("category"));
     } else {
       showView("home");
       initHomeView();
@@ -783,7 +930,64 @@
       document.getElementById("view-editor").style.display = view === "editor" ? "" : "none";
     }
 
+    function renderCategoriesGrid() {
+      const section = document.getElementById("categories-section");
+      section.innerHTML = CONFIG.CATEGORIES.map(cat => `
+        <div class="category-card" onclick="location.href='?category=${encodeURIComponent(cat.id)}'">
+          <h3>${cat.name}</h3>
+          <p>Browse ${cat.subcategories.length} subcategories</p>
+          <div class="subcategories-container">
+            ${cat.subcategories.map(sub => `<div class="subcategory-link">${sub}</div>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function initCategoryView(categoryId) {
+      document.getElementById("all-articles-view").style.display = "none";
+      document.getElementById("category-view").style.display = "block";
+      
+      const category = CONFIG.CATEGORIES.find(c => c.id === categoryId);
+      if (!category) {
+        document.getElementById("category-article-list").innerHTML = "<li>Category not found.</li>";
+        return;
+      }
+
+      document.getElementById("category-title").textContent = category.name;
+      
+      const listEl = document.getElementById("category-article-list");
+      listEl.innerHTML = "<li>Loading...</li>";
+
+      (async () => {
+        try {
+          const q = query(collection(db, "articles"), where("category", "==", categoryId), orderBy("createdAt", "desc"));
+          const snap = await getDocs(q);
+          if (snap.empty) { listEl.innerHTML = "<li>No articles in this category yet.</li>"; return; }
+          listEl.innerHTML = "";
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            const li = document.createElement("li");
+            const tag = data.visibilityLabel && data.visibilityLabel !== "public"
+              ? `<span class="visibility-tag">${data.visibilityLabel}</span>` : "";
+            const badges = renderBadges({ verified: data.authorVerified, staff: data.authorStaff });
+            li.innerHTML = `
+              <h2><a href="?article=${encodeURIComponent(docSnap.id)}">${escapeHtml(data.title || "Untitled")}</a>${tag}</h2>
+              <div class="article-meta"><span>by ${escapeHtml(data.authorUsername || "unknown")}${badges}</span><span>${formatDate(data.createdAt)}</span></div>
+            `;
+            listEl.appendChild(li);
+          });
+        } catch (err) {
+          console.error(err);
+          listEl.innerHTML = "<li>Could not load articles.</li>";
+        }
+      })();
+    }
+
     async function initHomeView() {
+      document.getElementById("all-articles-view").style.display = "block";
+      document.getElementById("category-view").style.display = "none";
+      renderCategoriesGrid();
+
       const listEl = document.getElementById("article-list");
       try {
         const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
@@ -817,7 +1021,7 @@
         if (!el || !articleData) return;
         const canManage = currentUser && (currentUser.uid === articleData.authorId || (currentProfile && currentProfile.staff));
         if (!canManage) { el.innerHTML = ""; return; }
-        el.innerHTML = `<a href="?editor=${encodeURIComponent(articleId)}">Edit</a><a id="delete-link" href="javascript:void(0)" style="color: #ef4444; border-color: #ef4444;">Delete</a>`;
+        el.innerHTML = `<a href="?editor=${encodeURIComponent(articleId)}">Edit</a><a id="delete-link" href="javascript:void(0)" style="color: var(--danger);">Delete</a>`;
         document.getElementById("delete-link").addEventListener("click", async () => {
           if (!confirm("Delete this article? This cannot be undone.")) return;
           try {
@@ -844,8 +1048,13 @@
         const badges = renderBadges({ verified: articleData.authorVerified, staff: articleData.authorStaff });
 
         root.innerHTML = `
-          <h1 class="article-title">${escapeHtml(articleData.title || "Untitled")}${tag}</h1>
-          <div class="article-meta"><span>by ${escapeHtml(articleData.authorUsername || "unknown")}${badges}</span><span>${formatDate(articleData.createdAt)}</span></div>
+          <div class="article-header">
+            <h1 class="article-title">${escapeHtml(articleData.title || "Untitled")}${tag}</h1>
+            <div class="article-info">
+              <span>by ${escapeHtml(articleData.authorUsername || "unknown")}${badges}</span>
+              <span>${formatDate(articleData.createdAt)}</span>
+            </div>
+          </div>
           <article class="article-body" id="article-body"></article>
           <div class="article-actions" id="article-actions"></div>
         `;
@@ -868,13 +1077,42 @@
       function initQuill() {
         quill = new Quill("#editor-container", { theme: "snow", modules: { toolbar: "#toolbar" } });
         document.getElementById("ql-html-embed-btn").addEventListener("click", () => {
-          const html = prompt("Paste the raw HTML block:\n\n(Example: <div>Your HTML here</div>)");
+          const html = prompt("Paste the raw HTML block");
           if (html === null || html.trim() === "") return;
           const range = quill.getSelection(true) || { index: quill.getLength() };
           quill.insertEmbed(range.index, "htmlEmbed", html, "user");
           quill.setSelection(range.index + 1, 0, "user");
         });
       }
+
+      function updateSubcategories() {
+        const categoryId = document.getElementById("article-category").value;
+        const subcatSelect = document.getElementById("article-subcategory");
+        subcatSelect.innerHTML = '<option value="">Select a subcategory...</option>';
+        
+        if (categoryId) {
+          const category = CONFIG.CATEGORIES.find(c => c.id === categoryId);
+          if (category) {
+            category.subcategories.forEach(sub => {
+              const option = document.createElement("option");
+              option.value = sub;
+              option.textContent = sub;
+              subcatSelect.appendChild(option);
+            });
+          }
+        }
+      }
+
+      document.getElementById("article-category").addEventListener("change", updateSubcategories);
+
+      // Populate category select
+      const categorySelect = document.getElementById("article-category");
+      CONFIG.CATEGORIES.forEach(cat => {
+        const option = document.createElement("option");
+        option.value = cat.id;
+        option.textContent = cat.name;
+        categorySelect.appendChild(option);
+      });
 
       async function loadForEdit(id) {
         try {
@@ -890,6 +1128,9 @@
           editingId = id;
           document.getElementById("editor-heading").textContent = "Edit article";
           document.getElementById("article-title").value = data.title || "";
+          document.getElementById("article-category").value = data.category || "";
+          updateSubcategories();
+          document.getElementById("article-subcategory").value = data.subcategory || "";
           document.getElementById("article-visibility").value = data.visibilityLabel || "public";
           if (data.contentDelta) quill.setContents(data.contentDelta);
           document.getElementById("delete-btn").style.display = "inline-block";
@@ -927,23 +1168,27 @@
       document.getElementById("save-btn").addEventListener("click", async () => {
         const statusEl = document.getElementById("save-status");
         const title = document.getElementById("article-title").value.trim();
+        const category = document.getElementById("article-category").value;
+        const subcategory = document.getElementById("article-subcategory").value;
         const visibilityLabel = document.getElementById("article-visibility").value;
+        
         if (!title) { statusEl.textContent = "Please enter a title."; return; }
+        if (!category) { statusEl.textContent = "Please select a category."; return; }
 
         const contentDelta = JSON.parse(JSON.stringify(quill.getContents()));
-        statusEl.textContent = "Saving…";
+        statusEl.textContent = "Saving...";
 
         try {
           if (editingId) {
             await updateDoc(doc(db, "articles", editingId), {
-              title, visibilityLabel, contentDelta, updatedAt: serverTimestamp(),
+              title, category, subcategory, visibilityLabel, contentDelta, updatedAt: serverTimestamp(),
             });
-            statusEl.textContent = "✓ Saved.";
+            statusEl.textContent = "Saved.";
           } else {
             const username = (currentProfile && currentProfile.username) || currentUser.email;
             const newId = slugify(title);
             await setDoc(doc(db, "articles", newId), {
-              title, visibilityLabel, contentDelta,
+              title, category, subcategory, visibilityLabel, contentDelta,
               authorId: currentUser.uid,
               authorUsername: username,
               authorVerified: !!(currentProfile && currentProfile.verified),
@@ -954,7 +1199,7 @@
             editingId = newId;
             document.getElementById("delete-btn").style.display = "inline-block";
             document.getElementById("editor-heading").textContent = "Edit article";
-            statusEl.innerHTML = `✓ Published. <a href="?article=${encodeURIComponent(newId)}">View article →</a>`;
+            statusEl.innerHTML = `Published. <a href="?article=${encodeURIComponent(newId)}">View article</a>`;
             history.replaceState(null, "", `?editor=${encodeURIComponent(newId)}`);
           }
           loadOwnArticles();
