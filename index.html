@@ -11,7 +11,7 @@
 <!-- Friendly sans-serif font -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
 
 <style>
   :root {
@@ -273,7 +273,7 @@
     background: var(--surface-alt);
     padding: 0.2em 0.4em;
     font-size: 0.9em;
-    font-family: 'Monaco', 'Courier New', monospace;
+    font-family: 'Fira Code', monospace;
   }
 
   article.article-body pre {
@@ -400,6 +400,132 @@
     text-align: center; 
   }
   .modal-close a { color: var(--accent); }
+
+  /* HTML Embed Modal */
+  .html-modal-box {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  .html-modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .html-modal-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .html-modal-header button {
+    background: transparent;
+    border: none;
+    color: var(--fg-muted);
+    font-size: 1.5rem;
+    padding: 0;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .html-modal-header button:hover {
+    color: var(--fg);
+  }
+
+  .html-modal-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+
+  .html-modal-footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  .html-editor-wrapper {
+    display: flex;
+    gap: 1rem;
+    height: 400px;
+  }
+
+  .html-editor-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .html-editor-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  #html-input {
+    flex: 1;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    padding: 1rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    resize: none;
+  }
+
+  #html-preview {
+    flex: 1;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    overflow: auto;
+  }
+
+  .html-syntax-help {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .html-syntax-help h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+
+  .html-syntax-help p {
+    margin: 0.25rem 0;
+    color: var(--fg-muted);
+  }
+
+  .html-syntax-help code {
+    background: var(--surface);
+    padding: 0.2em 0.4em;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85em;
+  }
 
   footer.site-footer {
     border-top: 1px solid var(--border);
@@ -740,6 +866,37 @@
     </div>
   </div>
 
+  <!-- HTML Embed Modal -->
+  <div class="modal-overlay" id="html-modal-overlay">
+    <div class="html-modal-box">
+      <div class="html-modal-header">
+        <h2>Insert HTML</h2>
+        <button type="button" id="html-modal-close">×</button>
+      </div>
+      <div class="html-modal-content">
+        <div class="html-syntax-help">
+          <h4>Quick Reference</h4>
+          <p>&lt;div&gt;, &lt;h1-h6&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a href=""&gt; are supported</p>
+          <p style="margin-top: 0.5rem;">Use inline styles: <code>style="color: #fff; padding: 1rem;"</code></p>
+        </div>
+        <div class="html-editor-wrapper">
+          <div class="html-editor-pane">
+            <div class="html-editor-label">Input</div>
+            <textarea id="html-input" placeholder="Paste or type your HTML here..."></textarea>
+          </div>
+          <div class="html-editor-pane">
+            <div class="html-editor-label">Preview</div>
+            <div id="html-preview"></div>
+          </div>
+        </div>
+      </div>
+      <div class="html-modal-footer">
+        <button type="button" id="html-modal-cancel">Cancel</button>
+        <button id="html-modal-insert" type="button">Insert</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Quill (third-party CDN) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 
@@ -843,6 +1000,46 @@
       return `${base || "article"}-${suffix}`;
     }
 
+    // HTML Modal functions
+    let quillInstance = null;
+    function openHtmlModal(quill) {
+      quillInstance = quill;
+      document.getElementById("html-modal-overlay").classList.add("open");
+      document.getElementById("html-input").focus();
+    }
+
+    function closeHtmlModal() {
+      document.getElementById("html-modal-overlay").classList.remove("open");
+      document.getElementById("html-input").value = "";
+      document.getElementById("html-preview").innerHTML = "";
+    }
+
+    document.getElementById("html-modal-close").addEventListener("click", closeHtmlModal);
+    document.getElementById("html-modal-cancel").addEventListener("click", closeHtmlModal);
+    document.getElementById("html-modal-overlay").addEventListener("click", (e) => {
+      if (e.target.id === "html-modal-overlay") closeHtmlModal();
+    });
+
+    document.getElementById("html-input").addEventListener("input", () => {
+      try {
+        const html = document.getElementById("html-input").value;
+        document.getElementById("html-preview").innerHTML = html;
+      } catch (e) {
+        document.getElementById("html-preview").innerHTML = `<p style="color: #ef4444;">Invalid HTML</p>`;
+      }
+    });
+
+    document.getElementById("html-modal-insert").addEventListener("click", () => {
+      const html = document.getElementById("html-input").value.trim();
+      if (!html) return;
+      if (quillInstance) {
+        const range = quillInstance.getSelection(true) || { index: quillInstance.getLength() };
+        quillInstance.insertEmbed(range.index, "htmlEmbed", html, "user");
+        quillInstance.setSelection(range.index + 1, 0, "user");
+      }
+      closeHtmlModal();
+    });
+
     function openLoginModal() {
       document.getElementById("login-modal-overlay").classList.add("open");
       document.getElementById("login-email").focus();
@@ -877,7 +1074,10 @@
         const overlay = document.getElementById("login-modal-overlay");
         overlay.classList.contains("open") ? closeLoginModal() : openLoginModal();
       }
-      if (e.key === "Escape") closeLoginModal();
+      if (e.key === "Escape") {
+        closeLoginModal();
+        closeHtmlModal();
+      }
     });
 
     document.getElementById("gate-login-link").addEventListener("click", openLoginModal);
@@ -1077,11 +1277,7 @@
       function initQuill() {
         quill = new Quill("#editor-container", { theme: "snow", modules: { toolbar: "#toolbar" } });
         document.getElementById("ql-html-embed-btn").addEventListener("click", () => {
-          const html = prompt("Paste the raw HTML block");
-          if (html === null || html.trim() === "") return;
-          const range = quill.getSelection(true) || { index: quill.getLength() };
-          quill.insertEmbed(range.index, "htmlEmbed", html, "user");
-          quill.setSelection(range.index + 1, 0, "user");
+          openHtmlModal(quill);
         });
       }
 
