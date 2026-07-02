@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Articles</title>
+
+<!-- Quill (rich text editor) — third-party CDN, kept external like the Firebase SDK -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.css" rel="stylesheet" />
+
+<!-- Friendly sans-serif font -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #0f1419;
+    --surface: #1a1e26;
+    --surface-alt: #22262e;
+    --border: #2d3139;
+    --fg: #f0f2f5;
+    --fg-muted: #8a8e99;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --danger: #ef4444;
+    --max-width: 1000px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--fg);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.15s;
+  }
+
+  button { cursor: pointer; background: var(--accent); color: white; border: none; font-weight: 500; }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button:disabled:hover { background: var(--accent); }
+
+  input, select, textarea {
+    background: var(--surface-alt);
+    color: var(--fg);
+    border-color: var(--border);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2rem 1.5rem 6rem 1.5rem;
+  }
+
+  .header-section {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .site-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .site-title a { color: var(--fg); text-decoration: none; }
+
+  .status-line {
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    margin: 1rem 0 0 0;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  .status-line a { color: var(--accent); }
+
+  .badge { 
+    vertical-align: middle; 
+    margin-left: 6px;
+    display: inline-block;
+  }
+
+  /* Categories section */
+  .categories-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .category-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .category-card:hover {
+    background: var(--surface-alt);
+    border-color: var(--accent);
+  }
+
+  .category-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: var(--accent);
+  }
+
+  .category-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+
+  .subcategories-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .subcategory-link {
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-alt);
+    border-left: 2px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    transition: all 0.15s;
+  }
+
+  .subcategory-link:hover {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(59, 130, 246, 0.05);
+  }
+
+  /* Article list (home view) */
+  .article-list { 
+    list-style: none; 
+    margin: 0; 
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .article-list li { 
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 1.5rem;
+    transition: all 0.15s;
+  }
+
+  .article-list li:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .article-list li:hover {
+    background: var(--surface-alt);
+    border-color: var(--accent);
+  }
+
+  .article-list h2 { 
+    font-size: 1.2rem; 
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+
+  .article-list h2 a { 
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .article-list h2 a:hover { 
+    text-decoration: underline;
+  }
+
+  .article-meta { 
+    font-size: 0.85rem; 
+    color: var(--fg-muted);
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin: 0;
+  }
+
+  .visibility-tag {
+    display: inline-block;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+  }
+
+  /* Article view */
+  .article-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .article-title { 
+    font-size: 2.2rem; 
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .article-info {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+
+  .article-info span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  article.article-body { 
+    margin: 0;
+    line-height: 1.8;
+  }
+
+  article.article-body h1, article.article-body h2, article.article-body h3 {
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  article.article-body p {
+    margin: 0.75rem 0;
+  }
+
+  article.article-body a {
+    text-decoration: underline;
+  }
+
+  article.article-body code {
+    background: var(--surface-alt);
+    padding: 0.2em 0.4em;
+    font-size: 0.9em;
+    font-family: 'Fira Code', monospace;
+  }
+
+  article.article-body pre {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  article.article-body pre code {
+    background: none;
+    padding: 0;
+  }
+
+  article.article-body blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    margin-left: 0;
+    color: var(--fg-muted);
+  }
+
+  article.article-body ul, article.article-body ol {
+    margin: 0.75rem 0;
+    padding-left: 2rem;
+  }
+
+  article.article-body li {
+    margin: 0.5rem 0;
+  }
+
+  .article-actions { 
+    margin-top: 2rem; 
+    border-top: 1px solid var(--border); 
+    padding-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
+
+  .article-actions a { 
+    color: var(--accent);
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--accent);
+    transition: all 0.15s;
+  }
+
+  .article-actions a:hover {
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+  }
+
+  .ql-editor { 
+    padding: 1rem; 
+    font-family: inherit;
+    background: var(--surface-alt);
+    color: var(--fg);
+    min-height: 450px;
+  }
+
+  .ql-editor.ql-blank::before {
+    color: var(--fg-muted);
+  }
+
+  /* HTML embed styling — plain in the published article, no chrome at all. */
+  .html-embed-block {
+    margin: 1rem 0;
+    overflow-x: auto;
+  }
+
+  .html-embed-block h1, .html-embed-block h2, .html-embed-block h3,
+  .html-embed-block h4, .html-embed-block h5, .html-embed-block h6 {
+    margin-top: 0;
+  }
+
+  /* Inside the editor only, a faint outline marks the block's boundary
+     so it's still findable/double-clickable to edit. */
+  #editor-container .html-embed-block {
+    outline: 1px dashed var(--border);
+    outline-offset: 6px;
+    cursor: pointer;
+  }
+
+  /* Login modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 2rem;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .modal-box h2 { 
+    margin-top: 0; 
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .modal-box form { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem;
+  }
+
+  .modal-error {
+    font-size: 0.85rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--danger);
+    color: #fca5a5;
+    padding: 0.75rem;
+    display: none;
+  }
+  .modal-error.show { display: block; }
+
+  .modal-close { 
+    margin-top: 1rem; 
+    font-size: 0.8rem; 
+    text-align: center; 
+  }
+  .modal-close a { color: var(--accent); }
+
+  /* HTML Embed Modal */
+  .html-modal-box {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  .html-modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .html-modal-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .html-modal-header button {
+    background: transparent;
+    border: none;
+    color: var(--fg-muted);
+    font-size: 1.5rem;
+    padding: 0;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .html-modal-header button:hover {
+    color: var(--fg);
+  }
+
+  .html-modal-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+
+  .html-modal-footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  .html-editor-wrapper {
+    display: flex;
+    gap: 1rem;
+    height: 400px;
+  }
+
+  .html-editor-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .html-editor-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  #html-input {
+    flex: 1;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    padding: 1rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    resize: none;
+  }
+
+  #html-preview {
+    flex: 1;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    overflow: auto;
+  }
+
+  .html-syntax-help {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .html-syntax-help h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+
+  .html-syntax-help p {
+    margin: 0.25rem 0;
+    color: var(--fg-muted);
+  }
+
+  .html-syntax-help code {
+    background: var(--surface);
+    padding: 0.2em 0.4em;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85em;
+  }
+
+  footer.site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+    padding: 2rem 1rem;
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    text-align: center;
+  }
+
+  /* Editor view */
+  .field-row { margin-bottom: 1.5rem; }
+  .field-row label { 
+    display: block; 
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--fg);
+  }
+  .field-row input[type="text"], .field-row select { 
+    width: 100%; 
+  }
+
+  #editor-container {
+    min-height: 450px;
+    border: 1px solid var(--border);
+    border-top: none;
+    background: var(--surface-alt);
+  }
+
+  #toolbar { 
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0.5rem;
+  }
+
+  .own-articles-list { 
+    margin-top: 2.5rem; 
+    border-top: 1px solid var(--border); 
+    padding-top: 1.5rem; 
+  }
+
+  .own-articles-list h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+  }
+
+  .own-articles-list ul { 
+    list-style: none; 
+    margin: 0; 
+    padding: 0; 
+  }
+
+  .own-articles-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 1rem;
+    font-size: 0.9rem;
+    align-items: center;
+  }
+
+  .own-articles-list li:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .own-articles-list li:hover {
+    background: var(--surface-alt);
+  }
+
+  .own-articles-list a {
+    color: var(--accent);
+  }
+
+  .editor-actions { 
+    margin-top: 1.5rem; 
+    display: flex; 
+    gap: 0.75rem; 
+    align-items: center;
+  }
+
+  .save-status { 
+    font-size: 0.85rem; 
+    color: var(--fg-muted);
+    margin-left: auto;
+  }
+
+  .save-status a { color: var(--accent); }
+
+  .gate-message { 
+    border: 1px solid var(--border); 
+    background: var(--surface);
+    padding: 1.5rem; 
+  }
+
+  /* Quill theme customization */
+  .ql-toolbar.ql-snow { 
+    background: var(--surface); 
+    border-color: var(--border); 
+  }
+  .ql-container.ql-snow { 
+    border-color: var(--border);
+    background: var(--surface-alt);
+  }
+  .ql-snow .ql-stroke { 
+    stroke: var(--fg); 
+  }
+  .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { 
+    fill: var(--fg); 
+  }
+  .ql-snow .ql-picker { 
+    color: var(--fg); 
+  }
+  .ql-snow .ql-picker-label { 
+    border-color: transparent; 
+    color: var(--fg);
+  }
+  .ql-snow .ql-picker-options { 
+    background: var(--surface); 
+    border-color: var(--border); 
+  }
+  .ql-snow .ql-picker-options .ql-selected,
+  .ql-snow .ql-picker-options .ql-option:hover {
+    color: var(--accent);
+  }
+  .ql-snow .ql-picker.ql-expanded .ql-picker-label { 
+    border-color: var(--border); 
+  }
+  .ql-snow .ql-tooltip {
+    background: var(--surface);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  .ql-snow .ql-tooltip input[type="text"] {
+    background: var(--surface-alt);
+    color: var(--fg);
+    border: 1px solid var(--border);
+  }
+  .ql-snow .ql-tooltip a.ql-action::after,
+  .ql-snow .ql-tooltip a.ql-remove::before { 
+    color: var(--fg); 
+  }
+  .ql-snow a.ql-tooltip-action { color: var(--accent); }
+
+  .ql-toolbar button:hover,
+  .ql-toolbar button.ql-active,
+  .ql-toolbar button:focus,
+  .ql-toolbar .ql-picker-label:hover,
+  .ql-toolbar .ql-picker-item:hover,
+  .ql-toolbar .ql-picker-item.ql-selected {
+    color: var(--accent);
+  }
+
+  /* Delete button styling */
+  #delete-btn {
+    background: var(--danger);
+    border-color: var(--danger);
+  }
+  #delete-btn:hover {
+    background: #dc2626;
+  }
+
+  /* Category filter buttons */
+  .category-filter {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    color: var(--fg);
+    border-color: var(--accent);
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header-section">
+      <h1 class="site-title" id="site-title-text"><a href="./">Articles</a></h1>
+      <div class="status-line" id="status-line"></div>
+    </div>
+
+    <!-- HOME VIEW: article list with categories -->
+    <div id="view-home">
+      <div class="categories-section" id="categories-section"></div>
+      
+      <div id="category-view" style="display:none;">
+        <h2 style="margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+          <a href="./" style="color: var(--fg-muted); font-size: 0.9rem;">All Articles</a> / <span id="category-title" style="color: var(--fg);"></span>
+        </h2>
+        <ul class="article-list" id="category-article-list"></ul>
+      </div>
+
+      <div id="all-articles-view">
+        <h2 style="margin-top: 0; margin-bottom: 1.5rem;">Recent Articles</h2>
+        <ul class="article-list" id="article-list"></ul>
+      </div>
+    </div>
+
+    <!-- ARTICLE VIEW: single article -->
+    <div id="view-article" style="display:none;">
+      <div id="article-root"><p>Loading...</p></div>
+    </div>
+
+    <!-- EDITOR VIEW -->
+    <div id="view-editor" style="display:none;">
+      <div id="gate" class="gate-message" style="display:none;">
+        Please log in to use the editor. (Press Ctrl+Alt+L, or
+        <a id="gate-login-link" href="javascript:void(0)">click here</a>.)
+      </div>
+
+      <div id="editor-wrap" style="display:none;">
+        <h2 id="editor-heading" style="margin-top: 0; margin-bottom: 1.5rem;">New article</h2>
+
+        <div class="field-row">
+          <label for="article-title">Title</label>
+          <input type="text" id="article-title" placeholder="Enter a descriptive title..." />
+        </div>
+
+        <div class="field-row">
+          <label for="article-category">Category</label>
+          <select id="article-category">
+            <option value="">Select a category...</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="article-subcategory">Subcategory</label>
+          <select id="article-subcategory">
+            <option value="">Select a subcategory...</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="article-visibility">Visibility</label>
+          <select id="article-visibility">
+            <option value="public">Public</option>
+            <option value="verified">Verified only</option>
+            <option value="staff">Staff only</option>
+          </select>
+        </div>
+
+        <div id="toolbar">
+          <span class="ql-formats">
+            <select class="ql-header">
+              <option value="1"></option>
+              <option value="2"></option>
+              <option value="3"></option>
+              <option selected></option>
+            </select>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-bold"></button>
+            <button class="ql-italic"></button>
+            <button class="ql-underline"></button>
+            <button class="ql-strike"></button>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-blockquote"></button>
+            <button class="ql-code-block"></button>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-list" value="ordered"></button>
+            <button class="ql-list" value="bullet"></button>
+            <button class="ql-indent" value="-1"></button>
+            <button class="ql-indent" value="+1"></button>
+          </span>
+          <span class="ql-formats">
+            <select class="ql-align"></select>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-link"></button>
+            <button class="ql-image"></button>
+            <button class="ql-video"></button>
+          </span>
+          <span class="ql-formats">
+            <select class="ql-color"></select>
+            <select class="ql-background"></select>
+          </span>
+          <span class="ql-formats">
+            <button id="ql-html-embed-btn" type="button" title="Insert custom HTML block">HTML</button>
+          </span>
+        </div>
+        <div id="editor-container"></div>
+
+        <div class="editor-actions">
+          <button id="save-btn">Save</button>
+          <button id="delete-btn" style="display:none;">Delete</button>
+          <span class="save-status" id="save-status"></span>
+        </div>
+
+        <div class="own-articles-list">
+          <h3>Your articles</h3>
+          <ul id="own-articles"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="site-footer">
+    Core 09 Studios 2026-2027. All rights reserved.
+  </footer>
+
+  <!-- Login modal -->
+  <div class="modal-overlay" id="login-modal-overlay">
+    <div class="modal-box">
+      <h2>Log in</h2>
+      <form id="login-form">
+        <input type="email" id="login-email" placeholder="Email" required autocomplete="username" />
+        <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
+        <button type="submit">Log in</button>
+        <div class="modal-error" id="login-error"></div>
+      </form>
+      <div class="modal-close"><a id="login-close" href="javascript:void(0)">close</a></div>
+    </div>
+  </div>
+
+  <!-- HTML Embed Modal -->
+  <div class="modal-overlay" id="html-modal-overlay">
+    <div class="html-modal-box">
+      <div class="html-modal-header">
+        <h2>Insert HTML</h2>
+        <button type="button" id="html-modal-close">×</button>
+      </div>
+      <div class="html-modal-content">
+        <div class="html-syntax-help">
+          <h4>Quick Reference</h4>
+          <p>&lt;div&gt;, &lt;h1-h6&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a href=""&gt; are supported</p>
+          <p style="margin-top: 0.5rem;">Use inline styles: <code>style="color: #fff; padding: 1rem;"</code></p>
+        </div>
+        <div class="html-editor-wrapper">
+          <div class="html-editor-pane">
+            <div class="html-editor-label">Input</div>
+            <textarea id="html-input" placeholder="Paste or type your HTML here..."></textarea>
+          </div>
+          <div class="html-editor-pane">
+            <div class="html-editor-label">Preview</div>
+            <div id="html-preview"></div>
+          </div>
+        </div>
+      </div>
+      <div class="html-modal-footer">
+        <button type="button" id="html-modal-cancel">Cancel</button>
+        <button id="html-modal-insert" type="button">Insert</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quill (third-party CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+
+  <script type="module">
+    const CONFIG = {
+      VERIFIED_BADGE_URL: "https://en.help.roblox.com/hc/article_attachments/41933934939156",
+      STAFF_BADGE_URL: "https://cdn3.emoji.gg/emojis/7528-staff-badge.png",
+      BADGE_SIZE_PX: 14,
+      LOGIN_KEYBIND: { ctrlKey: true, altKey: true, shiftKey: false, key: "l" },
+      SITE_TITLE: "Core 09 Blog",
+      FOOTER_TEXT: "Core 09 Studios 2026-2027. All rights reserved.",
+      CATEGORIES: [
+        { id: "announcements", name: "Announcements", subcategories: ["Updates", "News", "Events"] },
+        { id: "guides", name: "Guides & Tutorials", subcategories: ["Beginner", "Intermediate", "Advanced"] },
+        { id: "community", name: "Community", subcategories: ["Discussions", "Showcase", "Help"] },
+        { id: "technical", name: "Technical", subcategories: ["Bug Reports", "Feature Requests", "Documentation"] },
+      ]
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAnalytics, isSupported as analyticsIsSupported } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+    import {
+      getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc,
+      deleteDoc, query, orderBy, where, serverTimestamp,
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAD6II-i75cuNPhnI60XT4PZaDRABslago",
+      authDomain: "core09-b1478.firebaseapp.com",
+      projectId: "core09-b1478",
+      storageBucket: "core09-b1478.firebasestorage.app",
+      messagingSenderId: "436830656086",
+      appId: "1:436830656086:web:504aab4c783a12a70a0df7",
+      measurementId: "G-HBTDF419L9",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    analyticsIsSupported().then((ok) => { if (ok) getAnalytics(app); }).catch(() => {});
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const BlockEmbed = Quill.import("blots/block/embed");
+    class HtmlEmbedBlot extends BlockEmbed {
+      static create(value) {
+        const node = super.create();
+        node.classList.add("html-embed-block");
+        node.setAttribute("data-html", value || "");
+        node.innerHTML = value || "";
+        return node;
+      }
+      
+      static value(node) {
+        return node.getAttribute("data-html") || "";
+      }
+    }
+    
+    HtmlEmbedBlot.blotName = "htmlEmbed";
+    HtmlEmbedBlot.tagName = "div";
+    Quill.register(HtmlEmbedBlot);
+
+    function escapeHtml(str) {
+      const d = document.createElement("div");
+      d.textContent = str || "";
+      return d.innerHTML;
+    }
+
+    function formatDate(ts) {
+      if (!ts || !ts.toDate) return "";
+      return ts.toDate().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    }
+
+    function renderBadges(profile) {
+      if (!profile) return "";
+      let html = "";
+      if (profile.verified && CONFIG.VERIFIED_BADGE_URL) {
+        html += `<img class="badge" src="${CONFIG.VERIFIED_BADGE_URL}" style="height:${CONFIG.BADGE_SIZE_PX}px;width:${CONFIG.BADGE_SIZE_PX}px;" alt="Verified" title="Verified" />`;
+      }
+      if (profile.staff && CONFIG.STAFF_BADGE_URL) {
+        html += `<img class="badge" src="${CONFIG.STAFF_BADGE_URL}" style="height:${CONFIG.BADGE_SIZE_PX}px;width:${CONFIG.BADGE_SIZE_PX}px;" alt="Staff" title="Staff" />`;
+      }
+      return html;
+    }
+
+    async function fetchProfile(uid) {
+      try {
+        const snap = await getDoc(doc(db, "users", uid));
+        if (snap.exists()) return { uid, ...snap.data() };
+      } catch (e) {
+        console.warn("Could not load profile doc for", uid, e);
+      }
+      return null;
+    }
+
+    function slugify(title) {
+      const base = (title || "untitled").toLowerCase().trim()
+        .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 60);
+      const suffix = Math.random().toString(16).slice(2, 8);
+      return `${base || "article"}-${suffix}`;
+    }
+
+    // HTML Modal functions
+    let quillInstance = null;
+    // null while inserting a brand-new block; set to the blot's index in
+    // the document when re-opened to edit an existing block.
+    let htmlEmbedEditIndex = null;
+
+    function openHtmlModal(quill, existingHtml, editIndex) {
+      quillInstance = quill;
+      htmlEmbedEditIndex = typeof editIndex === "number" ? editIndex : null;
+      document.getElementById("html-modal-overlay").querySelector(".html-modal-header h2").textContent =
+        htmlEmbedEditIndex === null ? "Insert HTML" : "Edit HTML";
+      document.getElementById("html-input").value = existingHtml || "";
+      document.getElementById("html-preview").innerHTML = existingHtml || "";
+      document.getElementById("html-modal-overlay").classList.add("open");
+      document.getElementById("html-input").focus();
+    }
+
+    function closeHtmlModal() {
+      document.getElementById("html-modal-overlay").classList.remove("open");
+      document.getElementById("html-input").value = "";
+      document.getElementById("html-preview").innerHTML = "";
+      htmlEmbedEditIndex = null;
+    }
+
+    document.getElementById("html-modal-close").addEventListener("click", closeHtmlModal);
+    document.getElementById("html-modal-cancel").addEventListener("click", closeHtmlModal);
+    document.getElementById("html-modal-overlay").addEventListener("click", (e) => {
+      if (e.target.id === "html-modal-overlay") closeHtmlModal();
+    });
+
+    document.getElementById("html-input").addEventListener("input", () => {
+      // Same value, same assignment the embed blot itself uses to render
+      // (node.innerHTML = value) — so preview and insert can never diverge.
+      document.getElementById("html-preview").innerHTML = document.getElementById("html-input").value;
+    });
+
+    document.getElementById("html-modal-insert").addEventListener("click", () => {
+      const html = document.getElementById("html-input").value;
+      if (!html.trim()) return;
+      if (!quillInstance) { closeHtmlModal(); return; }
+
+      if (htmlEmbedEditIndex !== null) {
+        // Replace the existing block in place rather than appending a new one.
+        quillInstance.deleteText(htmlEmbedEditIndex, 1, "user");
+        quillInstance.insertEmbed(htmlEmbedEditIndex, "htmlEmbed", html, "user");
+        quillInstance.setSelection(htmlEmbedEditIndex + 1, 0, "user");
+      } else {
+        const range = quillInstance.getSelection(true) || { index: quillInstance.getLength() };
+        quillInstance.insertEmbed(range.index, "htmlEmbed", html, "user");
+        quillInstance.setSelection(range.index + 1, 0, "user");
+      }
+      closeHtmlModal();
+    });
+
+    function openLoginModal() {
+      document.getElementById("login-modal-overlay").classList.add("open");
+      document.getElementById("login-email").focus();
+    }
+    function closeLoginModal() {
+      document.getElementById("login-modal-overlay").classList.remove("open");
+    }
+
+    document.getElementById("login-close").addEventListener("click", closeLoginModal);
+    document.getElementById("login-modal-overlay").addEventListener("click", (e) => {
+      if (e.target.id === "login-modal-overlay") closeLoginModal();
+    });
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value;
+      const errBox = document.getElementById("login-error");
+      errBox.classList.remove("show");
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        closeLoginModal();
+      } catch (err) {
+        errBox.textContent = "Login failed: " + (err.code || err.message);
+        errBox.classList.add("show");
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      const kb = CONFIG.LOGIN_KEYBIND;
+      if (e.key.toLowerCase() === kb.key && e.ctrlKey === !!kb.ctrlKey && e.altKey === !!kb.altKey && e.shiftKey === !!kb.shiftKey) {
+        e.preventDefault();
+        const overlay = document.getElementById("login-modal-overlay");
+        overlay.classList.contains("open") ? closeLoginModal() : openLoginModal();
+      }
+      if (e.key === "Escape") {
+        closeLoginModal();
+        closeHtmlModal();
+      }
+    });
+
+    document.getElementById("gate-login-link").addEventListener("click", openLoginModal);
+
+    let currentUser = null;
+    let currentProfile = null;
+    let onAuthChangeHook = null;
+
+    function renderStatusLine() {
+      const el = document.getElementById("status-line");
+      if (!currentUser) { el.innerHTML = ""; return; }
+      const name = (currentProfile && currentProfile.username) || currentUser.email;
+      const badges = renderBadges(currentProfile);
+      const newArticleHref = "?editor=1";
+      el.innerHTML = `<span>Logged in as <strong>${escapeHtml(name)}</strong>${badges}</span><a href="${newArticleHref}">New article</a><a id="status-logout" href="javascript:void(0)">Log out</a>`;
+      document.getElementById("status-logout").addEventListener("click", () => signOut(auth));
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      currentProfile = user ? await fetchProfile(user.uid) : null;
+      renderStatusLine();
+      if (onAuthChangeHook) onAuthChangeHook();
+    });
+
+    document.getElementById("site-title-text").innerHTML = `<a href="./">${CONFIG.SITE_TITLE}</a>`;
+    document.title = CONFIG.SITE_TITLE;
+    document.getElementById("site-footer").textContent = CONFIG.FOOTER_TEXT;
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has("article")) {
+      showView("article");
+      initArticleView(params.get("article"));
+    } else if (params.has("editor")) {
+      showView("editor");
+      const raw = params.get("editor");
+      initEditorView(raw === "1" ? null : raw);
+    } else if (params.has("category")) {
+      showView("home");
+      initCategoryView(params.get("category"));
+    } else {
+      showView("home");
+      initHomeView();
+    }
+
+    function showView(view) {
+      document.getElementById("view-home").style.display = view === "home" ? "" : "none";
+      document.getElementById("view-article").style.display = view === "article" ? "" : "none";
+      document.getElementById("view-editor").style.display = view === "editor" ? "" : "none";
+    }
+
+    function renderCategoriesGrid() {
+      const section = document.getElementById("categories-section");
+      section.innerHTML = CONFIG.CATEGORIES.map(cat => `
+        <div class="category-card" onclick="location.href='?category=${encodeURIComponent(cat.id)}'">
+          <h3>${cat.name}</h3>
+          <p>Browse ${cat.subcategories.length} subcategories</p>
+          <div class="subcategories-container">
+            ${cat.subcategories.map(sub => `<div class="subcategory-link">${sub}</div>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function initCategoryView(categoryId) {
+      document.getElementById("all-articles-view").style.display = "none";
+      document.getElementById("category-view").style.display = "block";
+      
+      const category = CONFIG.CATEGORIES.find(c => c.id === categoryId);
+      if (!category) {
+        document.getElementById("category-article-list").innerHTML = "<li>Category not found.</li>";
+        return;
+      }
+
+      document.getElementById("category-title").textContent = category.name;
+      
+      const listEl = document.getElementById("category-article-list");
+      listEl.innerHTML = "<li>Loading...</li>";
+
+      (async () => {
+        try {
+          const q = query(collection(db, "articles"), where("category", "==", categoryId), orderBy("createdAt", "desc"));
+          const snap = await getDocs(q);
+          if (snap.empty) { listEl.innerHTML = "<li>No articles in this category yet.</li>"; return; }
+          listEl.innerHTML = "";
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            const li = document.createElement("li");
+            const tag = data.visibilityLabel && data.visibilityLabel !== "public"
+              ? `<span class="visibility-tag">${data.visibilityLabel}</span>` : "";
+            const badges = renderBadges({ verified: data.authorVerified, staff: data.authorStaff });
+            li.innerHTML = `
+              <h2><a href="?article=${encodeURIComponent(docSnap.id)}">${escapeHtml(data.title || "Untitled")}</a>${tag}</h2>
+              <div class="article-meta"><span>by ${escapeHtml(data.authorUsername || "unknown")}${badges}</span><span>${formatDate(data.createdAt)}</span></div>
+            `;
+            listEl.appendChild(li);
+          });
+        } catch (err) {
+          console.error(err);
+          listEl.innerHTML = "<li>Could not load articles.</li>";
+        }
+      })();
+    }
+
+    async function initHomeView() {
+      document.getElementById("all-articles-view").style.display = "block";
+      document.getElementById("category-view").style.display = "none";
+      renderCategoriesGrid();
+
+      const listEl = document.getElementById("article-list");
+      try {
+        const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+        if (snap.empty) { listEl.innerHTML = "<li>No articles yet.</li>"; return; }
+        listEl.innerHTML = "";
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          const li = document.createElement("li");
+          const tag = data.visibilityLabel && data.visibilityLabel !== "public"
+            ? `<span class="visibility-tag">${data.visibilityLabel}</span>` : "";
+          const badges = renderBadges({ verified: data.authorVerified, staff: data.authorStaff });
+          li.innerHTML = `
+            <h2><a href="?article=${encodeURIComponent(docSnap.id)}">${escapeHtml(data.title || "Untitled")}</a>${tag}</h2>
+            <div class="article-meta"><span>by ${escapeHtml(data.authorUsername || "unknown")}${badges}</span><span>${formatDate(data.createdAt)}</span></div>
+          `;
+          listEl.appendChild(li);
+        });
+      } catch (err) {
+        console.error(err);
+        listEl.innerHTML = "<li>Could not load articles.</li>";
+      }
+    }
+
+    async function initArticleView(articleId) {
+      const root = document.getElementById("article-root");
+      let articleData = null;
+
+      async function renderActions() {
+        const el = document.getElementById("article-actions");
+        if (!el || !articleData) return;
+        const canManage = currentUser && (currentUser.uid === articleData.authorId || (currentProfile && currentProfile.staff));
+        if (!canManage) { el.innerHTML = ""; return; }
+        el.innerHTML = `<a href="?editor=${encodeURIComponent(articleId)}">Edit</a><a id="delete-link" href="javascript:void(0)" style="color: var(--danger);">Delete</a>`;
+        document.getElementById("delete-link").addEventListener("click", async () => {
+          if (!confirm("Delete this article? This cannot be undone.")) return;
+          try {
+            await deleteDoc(doc(db, "articles", articleId));
+            window.location.href = "./";
+          } catch (err) {
+            alert("Could not delete: " + err.message);
+          }
+        });
+      }
+
+      onAuthChangeHook = renderActions;
+
+      if (!articleId) { root.innerHTML = "<p>No article specified.</p>"; return; }
+
+      try {
+        const snap = await getDoc(doc(db, "articles", articleId));
+        if (!snap.exists()) { root.innerHTML = "<p>Article not found.</p>"; return; }
+        articleData = snap.data();
+        document.title = articleData.title || "Article";
+
+        const tag = articleData.visibilityLabel && articleData.visibilityLabel !== "public"
+          ? `<span class="visibility-tag">${articleData.visibilityLabel}</span>` : "";
+        const badges = renderBadges({ verified: articleData.authorVerified, staff: articleData.authorStaff });
+
+        root.innerHTML = `
+          <div class="article-header">
+            <h1 class="article-title">${escapeHtml(articleData.title || "Untitled")}${tag}</h1>
+            <div class="article-info">
+              <span>by ${escapeHtml(articleData.authorUsername || "unknown")}${badges}</span>
+              <span>${formatDate(articleData.createdAt)}</span>
+            </div>
+          </div>
+          <article class="article-body" id="article-body"></article>
+          <div class="article-actions" id="article-actions"></div>
+        `;
+
+        const viewer = new Quill("#article-body", { theme: "snow", readOnly: true, modules: { toolbar: false } });
+        if (articleData.contentDelta) viewer.setContents(articleData.contentDelta);
+        document.getElementById("article-body").style.border = "none";
+
+        renderActions();
+      } catch (err) {
+        console.error(err);
+        root.innerHTML = "<p>Could not load this article.</p>";
+      }
+    }
+
+    function initEditorView(requestedEditId) {
+      let quill = null;
+      let editingId = null;
+
+      function initQuill() {
+        quill = new Quill("#editor-container", { theme: "snow", modules: { toolbar: "#toolbar" } });
+        document.getElementById("ql-html-embed-btn").addEventListener("click", () => {
+          openHtmlModal(quill, "", null);
+        });
+
+        // Double-click an existing HTML embed block in the editor to edit it.
+        quill.root.addEventListener("dblclick", (e) => {
+          const node = e.target.closest(".html-embed-block");
+          if (!node || !quill.root.contains(node)) return;
+          const blot = Quill.find(node);
+          if (!blot) return;
+          const index = quill.getIndex(blot);
+          openHtmlModal(quill, node.getAttribute("data-html") || "", index);
+        });
+      }
+
+      function updateSubcategories() {
+        const categoryId = document.getElementById("article-category").value;
+        const subcatSelect = document.getElementById("article-subcategory");
+        subcatSelect.innerHTML = '<option value="">Select a subcategory...</option>';
+        
+        if (categoryId) {
+          const category = CONFIG.CATEGORIES.find(c => c.id === categoryId);
+          if (category) {
+            category.subcategories.forEach(sub => {
+              const option = document.createElement("option");
+              option.value = sub;
+              option.textContent = sub;
+              subcatSelect.appendChild(option);
+            });
+          }
+        }
+      }
+
+      document.getElementById("article-category").addEventListener("change", updateSubcategories);
+
+      // Populate category select
+      const categorySelect = document.getElementById("article-category");
+      CONFIG.CATEGORIES.forEach(cat => {
+        const option = document.createElement("option");
+        option.value = cat.id;
+        option.textContent = cat.name;
+        categorySelect.appendChild(option);
+      });
+
+      async function loadForEdit(id) {
+        try {
+          const snap = await getDoc(doc(db, "articles", id));
+          if (!snap.exists()) { alert("That article no longer exists."); return; }
+          const data = snap.data();
+          const canEdit = currentUser.uid === data.authorId || (currentProfile && currentProfile.staff);
+          if (!canEdit) {
+            alert("You don't have permission to edit that article.");
+            window.location.href = "./";
+            return;
+          }
+          editingId = id;
+          document.getElementById("editor-heading").textContent = "Edit article";
+          document.getElementById("article-title").value = data.title || "";
+          document.getElementById("article-category").value = data.category || "";
+          updateSubcategories();
+          document.getElementById("article-subcategory").value = data.subcategory || "";
+          document.getElementById("article-visibility").value = data.visibilityLabel || "public";
+          if (data.contentDelta) quill.setContents(data.contentDelta);
+          document.getElementById("delete-btn").style.display = "inline-block";
+        } catch (err) {
+          console.error(err);
+          alert("Could not load article for editing.");
+        }
+      }
+
+      async function loadOwnArticles() {
+        const listEl = document.getElementById("own-articles");
+        try {
+          const q = query(collection(db, "articles"), where("authorId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+          const snap = await getDocs(q);
+          if (snap.empty) { listEl.innerHTML = "<li>You haven't written anything yet.</li>"; return; }
+          listEl.innerHTML = "";
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <span>${escapeHtml(data.title || "Untitled")}</span>
+              <span>
+                <a href="?article=${encodeURIComponent(docSnap.id)}">view</a>
+                <a href="?editor=${encodeURIComponent(docSnap.id)}">edit</a>
+              </span>
+            `;
+            listEl.appendChild(li);
+          });
+        } catch (err) {
+          console.error(err);
+          listEl.innerHTML = "<li>Could not load your articles.</li>";
+        }
+      }
+
+      document.getElementById("save-btn").addEventListener("click", async () => {
+        const statusEl = document.getElementById("save-status");
+        const title = document.getElementById("article-title").value.trim();
+        const category = document.getElementById("article-category").value;
+        const subcategory = document.getElementById("article-subcategory").value;
+        const visibilityLabel = document.getElementById("article-visibility").value;
+        
+        if (!title) { statusEl.textContent = "Please enter a title."; return; }
+        if (!category) { statusEl.textContent = "Please select a category."; return; }
+
+        const contentDelta = JSON.parse(JSON.stringify(quill.getContents()));
+        statusEl.textContent = "Saving...";
+
+        try {
+          if (editingId) {
+            await updateDoc(doc(db, "articles", editingId), {
+              title, category, subcategory, visibilityLabel, contentDelta, updatedAt: serverTimestamp(),
+            });
+            statusEl.textContent = "Saved.";
+          } else {
+            const username = (currentProfile && currentProfile.username) || currentUser.email;
+            const newId = slugify(title);
+            await setDoc(doc(db, "articles", newId), {
+              title, category, subcategory, visibilityLabel, contentDelta,
+              authorId: currentUser.uid,
+              authorUsername: username,
+              authorVerified: !!(currentProfile && currentProfile.verified),
+              authorStaff: !!(currentProfile && currentProfile.staff),
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            });
+            editingId = newId;
+            document.getElementById("delete-btn").style.display = "inline-block";
+            document.getElementById("editor-heading").textContent = "Edit article";
+            statusEl.innerHTML = `Published. <a href="?article=${encodeURIComponent(newId)}">View article</a>`;
+            history.replaceState(null, "", `?editor=${encodeURIComponent(newId)}`);
+          }
+          loadOwnArticles();
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "Could not save: " + err.message;
+        }
+      });
+
+      document.getElementById("delete-btn").addEventListener("click", async () => {
+        if (!editingId) return;
+        if (!confirm("Delete this article? This cannot be undone.")) return;
+        try {
+          await deleteDoc(doc(db, "articles", editingId));
+          window.location.href = "./";
+        } catch (err) {
+          alert("Could not delete: " + err.message);
+        }
+      });
+
+      let quillReady = false;
+
+      onAuthChangeHook = async () => {
+        const gate = document.getElementById("gate");
+        const wrap = document.getElementById("editor-wrap");
+        if (!currentUser) { gate.style.display = "block"; wrap.style.display = "none"; return; }
+        gate.style.display = "none";
+        wrap.style.display = "block";
+        if (!quillReady) { initQuill(); quillReady = true; }
+        if (requestedEditId && !editingId) await loadForEdit(requestedEditId);
+        loadOwnArticles();
+      };
+
+      if (currentUser) onAuthChangeHook();
+    }
+  </script>
+</body>
+</html>
