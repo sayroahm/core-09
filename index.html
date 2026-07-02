@@ -102,6 +102,7 @@
     border: 1px dashed var(--border);
     padding: 0.5rem;
     margin: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.05);
   }
 
   /* Login modal */
@@ -324,8 +325,8 @@
 
   <script type="module">
     const CONFIG = {
-      VERIFIED_BADGE_URL: "https://en.help.roblox.com/hc/article_attachments/41933934939156", // paste your imgur link here
-      STAFF_BADGE_URL: "https://cdn3.emoji.gg/emojis/7528-staff-badge.png", // paste your imgur link here
+      VERIFIED_BADGE_URL: "https://en.help.roblox.com/hc/article_attachments/41933934939156",
+      STAFF_BADGE_URL: "https://cdn3.emoji.gg/emojis/7528-staff-badge.png",
       BADGE_SIZE_PX: 14,
       LOGIN_KEYBIND: { ctrlKey: true, altKey: true, shiftKey: false, key: "l" },
       SITE_TITLE: "Core 09 Blog",
@@ -361,15 +362,17 @@
     class HtmlEmbedBlot extends BlockEmbed {
       static create(value) {
         const node = super.create();
-        node.setAttribute("data-html-embed", encodeURIComponent(value || ""));
-        node.innerHTML = value || "";
         node.classList.add("html-embed-block");
+        node.setAttribute("data-html", value || "");
+        node.innerHTML = value || "";
         return node;
       }
+      
       static value(node) {
-        return decodeURIComponent(node.getAttribute("data-html-embed") || "");
+        return node.getAttribute("data-html") || "";
       }
     }
+    
     HtmlEmbedBlot.blotName = "htmlEmbed";
     HtmlEmbedBlot.tagName = "div";
     Quill.register(HtmlEmbedBlot);
@@ -455,7 +458,7 @@
 
     let currentUser = null;
     let currentProfile = null;
-    let onAuthChangeHook = null; // set by whichever view needs to react
+    let onAuthChangeHook = null;
 
     function renderStatusLine() {
       const el = document.getElementById("status-line");
@@ -646,7 +649,7 @@
         const visibilityLabel = document.getElementById("article-visibility").value;
         if (!title) { statusEl.textContent = "Please enter a title."; return; }
 
-        const contentDelta = quill.getContents().ops;
+        const contentDelta = quill.getContents();
         statusEl.textContent = "Saving…";
 
         try {
