@@ -649,7 +649,7 @@
         const visibilityLabel = document.getElementById("article-visibility").value;
         if (!title) { statusEl.textContent = "Please enter a title."; return; }
 
-        const contentDelta = quill.getContents();
+        const contentDelta = JSON.parse(JSON.stringify(quill.getContents()));
         statusEl.textContent = "Saving…";
 
         try {
