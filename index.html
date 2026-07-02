@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Articles</title>
+
+<!-- Quill (rich text editor) — third-party CDN, kept external like the Firebase SDK -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.css" rel="stylesheet" />
+
+<!-- Friendly sans-serif font -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #000000;
+    --fg: #ffffff;
+    --border: #ffffff;
+    --muted: #aaaaaa;
+    --max-width: 700px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  a { color: var(--fg); }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 0.4rem 0.6rem;
+  }
+
+  button { cursor: pointer; transition: none; }
+  button:hover { background: var(--fg); color: var(--bg); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button:disabled:hover { background: var(--bg); color: var(--fg); }
+
+  .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2rem 1rem 6rem 1rem;
+  }
+
+  .site-title {
+    font-size: 1.6rem;
+    margin: 0 0 0.25rem 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+  }
+  .site-title a { text-decoration: none; }
+
+  .status-line {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0.75rem 0 1.5rem 0;
+  }
+  .status-line a { text-decoration: underline; cursor: pointer; }
+
+  .badge { vertical-align: middle; margin-left: 3px; }
+
+  .article-list { list-style: none; margin: 0; padding: 0; }
+  .article-list li { border-bottom: 1px solid var(--border); padding: 1rem 0; }
+  .article-list h2 { font-size: 1.15rem; margin: 0 0 0.3rem 0; }
+  .article-list h2 a { text-decoration: none; }
+  .article-list h2 a:hover { text-decoration: underline; }
+
+  .article-meta { font-size: 0.85rem; color: var(--muted); }
+
+  .visibility-tag {
+    display: inline-block;
+    border: 1px solid var(--border);
+    font-size: 0.7rem;
+    padding: 0.05rem 0.35rem;
+    margin-left: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .article-title { font-size: 1.8rem; margin-bottom: 0.25rem; }
+  article.article-body { margin-top: 1.5rem; }
+  .article-actions { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+  .article-actions a { margin-right: 1rem; }
+
+  .ql-editor { padding: 0; font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+  .html-embed-block {
+    border: 1px dashed var(--border);
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+  }
+
+  /* Login modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 320px;
+  }
+  .modal-box h2 { margin-top: 0; font-size: 1.1rem; }
+  .modal-box form { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .modal-error {
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+    padding: 0.4rem;
+    display: none;
+  }
+  .modal-error.show { display: block; }
+
+  .modal-close { margin-top: 0.75rem; font-size: 0.8rem; text-align: right; }
+
+  footer.site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    padding: 1rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Editor view — the one section allowed to be dense/cluttered */
+  .field-row { margin-bottom: 1rem; }
+  .field-row label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; }
+  .field-row input[type="text"], .field-row select { width: 100%; }
+
+  #editor-container {
+    min-height: 400px;
+    border: 1px solid var(--border);
+    border-top: none;
+    background: var(--bg);
+  }
+  #toolbar { border: 1px solid var(--border); border-radius: 0; }
+
+  .own-articles-list { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+  .own-articles-list ul { list-style: none; margin: 0; padding: 0; }
+  .own-articles-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .editor-actions { margin-top: 1rem; display: flex; gap: 0.6rem; align-items: center; }
+  .save-status { font-size: 0.85rem; color: var(--muted); }
+  .gate-message { border: 1px solid var(--border); padding: 1rem; }
+
+  /* Quill ships a light "snow" theme by default — re-skin it to match
+     the black background instead of pulling in a whole new theme. */
+  .ql-toolbar.ql-snow { background: var(--bg); border-color: var(--border); }
+  .ql-container.ql-snow { border-color: var(--border); }
+  .ql-snow .ql-stroke { stroke: var(--fg); }
+  .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: var(--fg); }
+  .ql-snow .ql-picker { color: var(--fg); }
+  .ql-snow .ql-picker-label { border-color: transparent; }
+  .ql-snow .ql-picker-options { background: var(--bg); border-color: var(--border); }
+  .ql-snow .ql-picker.ql-expanded .ql-picker-label { border-color: var(--border); }
+  .ql-snow .ql-tooltip {
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .ql-snow .ql-tooltip input[type="text"] {
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+  }
+  .ql-snow .ql-tooltip a.ql-action::after,
+  .ql-snow .ql-tooltip a.ql-remove::before { color: var(--fg); }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 class="site-title" id="site-title-text"><a href="./">Articles</a></h1>
+    <div class="status-line" id="status-line"></div>
+
+    <!-- HOME VIEW: article list -->
+    <div id="view-home">
+      <ul class="article-list" id="article-list"><li>Loading articles…</li></ul>
+    </div>
+
+    <!-- ARTICLE VIEW: single article, reached via ?article=ID (this IS each article's unique link) -->
+    <div id="view-article" style="display:none;">
+      <div id="article-root"><p>Loading…</p></div>
+    </div>
+
+    <!-- EDITOR VIEW: reached via ?editor=1 (new) or ?editor=ID (edit) -->
+    <div id="view-editor" style="display:none;">
+      <div id="gate" class="gate-message" style="display:none;">
+        Please log in to use the editor. (Press <strong>Ctrl+Alt+L</strong>, or
+        <a id="gate-login-link" href="javascript:void(0)">click here</a>.)
+      </div>
+
+      <div id="editor-wrap" style="display:none;">
+        <h2 id="editor-heading">New article</h2>
+
+        <div class="field-row">
+          <label for="article-title">Title</label>
+          <input type="text" id="article-title" placeholder="Article title" />
+        </div>
+
+        <div class="field-row">
+          <label for="article-visibility">Visibility label (badge shown on the article — does not restrict reading)</label>
+          <select id="article-visibility">
+            <option value="public">None</option>
+            <option value="verified">Verified only</option>
+            <option value="staff">Staff only</option>
+          </select>
+        </div>
+
+        <div id="toolbar">
+          <span class="ql-formats">
+            <select class="ql-header">
+              <option value="1"></option>
+              <option value="2"></option>
+              <option value="3"></option>
+              <option selected></option>
+            </select>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-bold"></button>
+            <button class="ql-italic"></button>
+            <button class="ql-underline"></button>
+            <button class="ql-strike"></button>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-blockquote"></button>
+            <button class="ql-code-block"></button>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-list" value="ordered"></button>
+            <button class="ql-list" value="bullet"></button>
+            <button class="ql-indent" value="-1"></button>
+            <button class="ql-indent" value="+1"></button>
+          </span>
+          <span class="ql-formats">
+            <select class="ql-align"></select>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-link"></button>
+            <button class="ql-image"></button>
+            <button class="ql-video"></button>
+          </span>
+          <span class="ql-formats">
+            <select class="ql-color"></select>
+            <select class="ql-background"></select>
+          </span>
+          <span class="ql-formats">
+            <select class="ql-font"></select>
+          </span>
+          <span class="ql-formats">
+            <button class="ql-clean"></button>
+          </span>
+          <span class="ql-formats">
+            <button id="ql-html-embed-btn" type="button" title="Insert raw HTML block">&lt;/&gt;</button>
+          </span>
+        </div>
+        <div id="editor-container"></div>
+
+        <div class="editor-actions">
+          <button id="save-btn">Save</button>
+          <button id="delete-btn" style="display:none;">Delete</button>
+          <span class="save-status" id="save-status"></span>
+        </div>
+
+        <div class="own-articles-list">
+          <h3>Your articles</h3>
+          <ul id="own-articles"><li>Loading…</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="site-footer">
+    Core 09 Studios® 2026-2027. All rights reserved.
+  </footer>
+
+  <!-- Login modal (hidden until keybind is pressed) -->
+  <div class="modal-overlay" id="login-modal-overlay">
+    <div class="modal-box">
+      <h2>Log in</h2>
+      <form id="login-form">
+        <input type="email" id="login-email" placeholder="Email" required autocomplete="username" />
+        <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
+        <button type="submit">Log in</button>
+        <div class="modal-error" id="login-error"></div>
+      </form>
+      <div class="modal-close"><a id="login-close" href="javascript:void(0)">close</a></div>
+    </div>
+  </div>
+
+  <!-- Quill (third-party CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+
+  <script type="module">
+    const CONFIG = {
+      VERIFIED_BADGE_URL: "https://en.help.roblox.com/hc/article_attachments/41933934939156", // paste your imgur link here
+      STAFF_BADGE_URL: "https://cdn3.emoji.gg/emojis/7528-staff-badge.png", // paste your imgur link here
+      BADGE_SIZE_PX: 14,
+      LOGIN_KEYBIND: { ctrlKey: true, altKey: true, shiftKey: false, key: "l" },
+      SITE_TITLE: "Core 09 Blog",
+      FOOTER_TEXT: "Core 09 Studios® 2026-2027. All rights reserved.",
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAnalytics, isSupported as analyticsIsSupported } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+    import {
+      getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc,
+      deleteDoc, query, orderBy, where, serverTimestamp,
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAD6II-i75cuNPhnI60XT4PZaDRABslago",
+      authDomain: "core09-b1478.firebaseapp.com",
+      projectId: "core09-b1478",
+      storageBucket: "core09-b1478.firebasestorage.app",
+      messagingSenderId: "436830656086",
+      appId: "1:436830656086:web:504aab4c783a12a70a0df7",
+      measurementId: "G-HBTDF419L9",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    analyticsIsSupported().then((ok) => { if (ok) getAnalytics(app); }).catch(() => {});
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const BlockEmbed = Quill.import("blots/block/embed");
+    class HtmlEmbedBlot extends BlockEmbed {
+      static create(value) {
+        const node = super.create();
+        node.setAttribute("data-html-embed", encodeURIComponent(value || ""));
+        node.innerHTML = value || "";
+        node.classList.add("html-embed-block");
+        return node;
+      }
+      static value(node) {
+        return decodeURIComponent(node.getAttribute("data-html-embed") || "");
+      }
+    }
+    HtmlEmbedBlot.blotName = "htmlEmbed";
+    HtmlEmbedBlot.tagName = "div";
+    Quill.register(HtmlEmbedBlot);
+
+    function escapeHtml(str) {
+      const d = document.createElement("div");
+      d.textContent = str || "";
+      return d.innerHTML;
+    }
+
+    function formatDate(ts) {
+      if (!ts || !ts.toDate) return "";
+      return ts.toDate().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    function renderBadges(profile) {
+      if (!profile) return "";
+      let html = "";
+      if (profile.verified && CONFIG.VERIFIED_BADGE_URL) {
+        html += `<img class="badge" src="${CONFIG.VERIFIED_BADGE_URL}" style="height:${CONFIG.BADGE_SIZE_PX}px;width:${CONFIG.BADGE_SIZE_PX}px;" alt="Verified" title="Verified" />`;
+      }
+      if (profile.staff && CONFIG.STAFF_BADGE_URL) {
+        html += `<img class="badge" src="${CONFIG.STAFF_BADGE_URL}" style="height:${CONFIG.BADGE_SIZE_PX}px;width:${CONFIG.BADGE_SIZE_PX}px;" alt="Staff" title="Staff" />`;
+      }
+      return html;
+    }
+
+    async function fetchProfile(uid) {
+      try {
+        const snap = await getDoc(doc(db, "users", uid));
+        if (snap.exists()) return { uid, ...snap.data() };
+      } catch (e) {
+        console.warn("Could not load profile doc for", uid, e);
+      }
+      return null;
+    }
+
+    function slugify(title) {
+      const base = (title || "untitled").toLowerCase().trim()
+        .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 60);
+      const suffix = Math.random().toString(16).slice(2, 8);
+      return `${base || "article"}-${suffix}`;
+    }
+
+    function openLoginModal() {
+      document.getElementById("login-modal-overlay").classList.add("open");
+      document.getElementById("login-email").focus();
+    }
+    function closeLoginModal() {
+      document.getElementById("login-modal-overlay").classList.remove("open");
+    }
+
+    document.getElementById("login-close").addEventListener("click", closeLoginModal);
+    document.getElementById("login-modal-overlay").addEventListener("click", (e) => {
+      if (e.target.id === "login-modal-overlay") closeLoginModal();
+    });
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value;
+      const errBox = document.getElementById("login-error");
+      errBox.classList.remove("show");
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        closeLoginModal();
+      } catch (err) {
+        errBox.textContent = "Login failed: " + (err.code || err.message);
+        errBox.classList.add("show");
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      const kb = CONFIG.LOGIN_KEYBIND;
+      if (e.key.toLowerCase() === kb.key && e.ctrlKey === !!kb.ctrlKey && e.altKey === !!kb.altKey && e.shiftKey === !!kb.shiftKey) {
+        e.preventDefault();
+        const overlay = document.getElementById("login-modal-overlay");
+        overlay.classList.contains("open") ? closeLoginModal() : openLoginModal();
+      }
+      if (e.key === "Escape") closeLoginModal();
+    });
+
+    document.getElementById("gate-login-link").addEventListener("click", openLoginModal);
+
+    let currentUser = null;
+    let currentProfile = null;
+    let onAuthChangeHook = null; // set by whichever view needs to react
+
+    function renderStatusLine() {
+      const el = document.getElementById("status-line");
+      if (!currentUser) { el.innerHTML = ""; return; }
+      const name = (currentProfile && currentProfile.username) || currentUser.email;
+      const badges = renderBadges(currentProfile);
+      const newArticleHref = "?editor=1";
+      el.innerHTML = `Logged in as ${name}${badges} — <a href="${newArticleHref}">New article</a> · <a id="status-logout" href="javascript:void(0)">Log out</a>`;
+      document.getElementById("status-logout").addEventListener("click", () => signOut(auth));
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      currentProfile = user ? await fetchProfile(user.uid) : null;
+      renderStatusLine();
+      if (onAuthChangeHook) onAuthChangeHook();
+    });
+
+    document.getElementById("site-title-text").innerHTML = `<a href="./">${CONFIG.SITE_TITLE}</a>`;
+    document.title = CONFIG.SITE_TITLE;
+    document.getElementById("site-footer").textContent = CONFIG.FOOTER_TEXT;
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has("article")) {
+      showView("article");
+      initArticleView(params.get("article"));
+    } else if (params.has("editor")) {
+      showView("editor");
+      const raw = params.get("editor");
+      initEditorView(raw === "1" ? null : raw);
+    } else {
+      showView("home");
+      initHomeView();
+    }
+
+    function showView(view) {
+      document.getElementById("view-home").style.display = view === "home" ? "" : "none";
+      document.getElementById("view-article").style.display = view === "article" ? "" : "none";
+      document.getElementById("view-editor").style.display = view === "editor" ? "" : "none";
+    }
+
+    async function initHomeView() {
+      const listEl = document.getElementById("article-list");
+      try {
+        const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+        if (snap.empty) { listEl.innerHTML = "<li>No articles yet.</li>"; return; }
+        listEl.innerHTML = "";
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          const li = document.createElement("li");
+          const tag = data.visibilityLabel && data.visibilityLabel !== "public"
+            ? `<span class="visibility-tag">${data.visibilityLabel}</span>` : "";
+          const badges = renderBadges({ verified: data.authorVerified, staff: data.authorStaff });
+          li.innerHTML = `
+            <h2><a href="?article=${encodeURIComponent(docSnap.id)}">${escapeHtml(data.title || "Untitled")}</a>${tag}</h2>
+            <div class="article-meta">by ${escapeHtml(data.authorUsername || "unknown")}${badges} — ${formatDate(data.createdAt)}</div>
+          `;
+          listEl.appendChild(li);
+        });
+      } catch (err) {
+        console.error(err);
+        listEl.innerHTML = "<li>Could not load articles.</li>";
+      }
+    }
+
+    async function initArticleView(articleId) {
+      const root = document.getElementById("article-root");
+      let articleData = null;
+
+      async function renderActions() {
+        const el = document.getElementById("article-actions");
+        if (!el || !articleData) return;
+        const canManage = currentUser && (currentUser.uid === articleData.authorId || (currentProfile && currentProfile.staff));
+        if (!canManage) { el.innerHTML = ""; return; }
+        el.innerHTML = `<a href="?editor=${encodeURIComponent(articleId)}">Edit</a><a id="delete-link" href="javascript:void(0)">Delete</a>`;
+        document.getElementById("delete-link").addEventListener("click", async () => {
+          if (!confirm("Delete this article? This cannot be undone.")) return;
+          try {
+            await deleteDoc(doc(db, "articles", articleId));
+            window.location.href = "./";
+          } catch (err) {
+            alert("Could not delete: " + err.message);
+          }
+        });
+      }
+
+      onAuthChangeHook = renderActions;
+
+      if (!articleId) { root.innerHTML = "<p>No article specified.</p>"; return; }
+
+      try {
+        const snap = await getDoc(doc(db, "articles", articleId));
+        if (!snap.exists()) { root.innerHTML = "<p>Article not found.</p>"; return; }
+        articleData = snap.data();
+        document.title = articleData.title || "Article";
+
+        const tag = articleData.visibilityLabel && articleData.visibilityLabel !== "public"
+          ? `<span class="visibility-tag">${articleData.visibilityLabel}</span>` : "";
+        const badges = renderBadges({ verified: articleData.authorVerified, staff: articleData.authorStaff });
+
+        root.innerHTML = `
+          <h1 class="article-title">${escapeHtml(articleData.title || "Untitled")}${tag}</h1>
+          <div class="article-meta">by ${escapeHtml(articleData.authorUsername || "unknown")}${badges} — ${formatDate(articleData.createdAt)}</div>
+          <article class="article-body" id="article-body"></article>
+          <div class="article-actions" id="article-actions"></div>
+        `;
+
+        const viewer = new Quill("#article-body", { theme: "snow", readOnly: true, modules: { toolbar: false } });
+        if (articleData.contentDelta) viewer.setContents(articleData.contentDelta);
+        document.getElementById("article-body").style.border = "none";
+
+        renderActions();
+      } catch (err) {
+        console.error(err);
+        root.innerHTML = "<p>Could not load this article.</p>";
+      }
+    }
+
+    function initEditorView(requestedEditId) {
+      let quill = null;
+      let editingId = null;
+
+      function initQuill() {
+        quill = new Quill("#editor-container", { theme: "snow", modules: { toolbar: "#toolbar" } });
+        document.getElementById("ql-html-embed-btn").addEventListener("click", () => {
+          const html = prompt("Paste the raw HTML to embed:");
+          if (html === null || html.trim() === "") return;
+          const range = quill.getSelection(true) || { index: quill.getLength() };
+          quill.insertEmbed(range.index, "htmlEmbed", html, "user");
+          quill.setSelection(range.index + 1, 0, "user");
+        });
+      }
+
+      async function loadForEdit(id) {
+        try {
+          const snap = await getDoc(doc(db, "articles", id));
+          if (!snap.exists()) { alert("That article no longer exists."); return; }
+          const data = snap.data();
+          const canEdit = currentUser.uid === data.authorId || (currentProfile && currentProfile.staff);
+          if (!canEdit) {
+            alert("You don't have permission to edit that article.");
+            window.location.href = "./";
+            return;
+          }
+          editingId = id;
+          document.getElementById("editor-heading").textContent = "Edit article";
+          document.getElementById("article-title").value = data.title || "";
+          document.getElementById("article-visibility").value = data.visibilityLabel || "public";
+          if (data.contentDelta) quill.setContents(data.contentDelta);
+          document.getElementById("delete-btn").style.display = "inline-block";
+        } catch (err) {
+          console.error(err);
+          alert("Could not load article for editing.");
+        }
+      }
+
+      async function loadOwnArticles() {
+        const listEl = document.getElementById("own-articles");
+        try {
+          const q = query(collection(db, "articles"), where("authorId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+          const snap = await getDocs(q);
+          if (snap.empty) { listEl.innerHTML = "<li>You haven't written anything yet.</li>"; return; }
+          listEl.innerHTML = "";
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <span>${escapeHtml(data.title || "Untitled")}</span>
+              <span>
+                <a href="?article=${encodeURIComponent(docSnap.id)}">view</a>
+                &nbsp;·&nbsp;
+                <a href="?editor=${encodeURIComponent(docSnap.id)}">edit</a>
+              </span>
+            `;
+            listEl.appendChild(li);
+          });
+        } catch (err) {
+          console.error(err);
+          listEl.innerHTML = "<li>Could not load your articles.</li>";
+        }
+      }
+
+      document.getElementById("save-btn").addEventListener("click", async () => {
+        const statusEl = document.getElementById("save-status");
+        const title = document.getElementById("article-title").value.trim();
+        const visibilityLabel = document.getElementById("article-visibility").value;
+        if (!title) { statusEl.textContent = "Please enter a title."; return; }
+
+        const contentDelta = quill.getContents();
+        statusEl.textContent = "Saving…";
+
+        try {
+          if (editingId) {
+            await updateDoc(doc(db, "articles", editingId), {
+              title, visibilityLabel, contentDelta, updatedAt: serverTimestamp(),
+            });
+            statusEl.textContent = "Saved.";
+          } else {
+            const username = (currentProfile && currentProfile.username) || currentUser.email;
+            const newId = slugify(title);
+            await setDoc(doc(db, "articles", newId), {
+              title, visibilityLabel, contentDelta,
+              authorId: currentUser.uid,
+              authorUsername: username,
+              authorVerified: !!(currentProfile && currentProfile.verified),
+              authorStaff: !!(currentProfile && currentProfile.staff),
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            });
+            editingId = newId;
+            document.getElementById("delete-btn").style.display = "inline-block";
+            document.getElementById("editor-heading").textContent = "Edit article";
+            statusEl.innerHTML = `Published. <a href="?article=${encodeURIComponent(newId)}">View article</a>`;
+            history.replaceState(null, "", `?editor=${encodeURIComponent(newId)}`);
+          }
+          loadOwnArticles();
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "Could not save: " + err.message;
+        }
+      });
+
+      document.getElementById("delete-btn").addEventListener("click", async () => {
+        if (!editingId) return;
+        if (!confirm("Delete this article? This cannot be undone.")) return;
+        try {
+          await deleteDoc(doc(db, "articles", editingId));
+          window.location.href = "./";
+        } catch (err) {
+          alert("Could not delete: " + err.message);
+        }
+      });
+
+      let quillReady = false;
+
+      onAuthChangeHook = async () => {
+        const gate = document.getElementById("gate");
+        const wrap = document.getElementById("editor-wrap");
+        if (!currentUser) { gate.style.display = "block"; wrap.style.display = "none"; return; }
+        gate.style.display = "none";
+        wrap.style.display = "block";
+        if (!quillReady) { initQuill(); quillReady = true; }
+        if (requestedEditId && !editingId) await loadForEdit(requestedEditId);
+        loadOwnArticles();
+      };
+
+      if (currentUser) onAuthChangeHook();
+    }
+  </script>
+</body>
+</html>
