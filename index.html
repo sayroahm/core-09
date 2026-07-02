@@ -11,15 +11,20 @@
 <!-- Friendly sans-serif font -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
 <style>
   :root {
-    --bg: #000000;
-    --fg: #ffffff;
-    --border: #ffffff;
-    --muted: #aaaaaa;
-    --max-width: 700px;
+    --bg: #0f1419;
+    --surface: #1a1e26;
+    --surface-alt: #22262e;
+    --border: #2d3139;
+    --fg: #f0f2f5;
+    --fg-muted: #8a8e99;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --danger: #ef4444;
+    --max-width: 800px;
   }
 
   * { box-sizing: border-box; }
@@ -29,80 +34,237 @@
     padding: 0;
     background: var(--bg);
     color: var(--fg);
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
   }
 
-  a { color: var(--fg); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
 
   button, input, select, textarea {
     font-family: inherit;
     font-size: 1rem;
     color: var(--fg);
-    background: var(--bg);
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 0;
-    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s;
   }
 
-  button { cursor: pointer; transition: none; }
-  button:hover { background: var(--fg); color: var(--bg); }
+  button { cursor: pointer; background: var(--accent); color: white; border: none; font-weight: 500; }
+  button:hover { background: var(--accent-hover); }
   button:disabled { opacity: 0.5; cursor: default; }
-  button:disabled:hover { background: var(--bg); color: var(--fg); }
+  button:disabled:hover { background: var(--accent); }
+
+  input, select, textarea {
+    background: var(--surface-alt);
+    color: var(--fg);
+    border-color: var(--border);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
 
   .container {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 2rem 1rem 6rem 1rem;
+    padding: 2rem 1.5rem 6rem 1.5rem;
   }
 
   .site-title {
-    font-size: 1.6rem;
-    margin: 0 0 0.25rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 0.75rem;
+    padding-bottom: 1rem;
   }
-  .site-title a { text-decoration: none; }
+  .site-title a { color: var(--fg); text-decoration: none; }
 
   .status-line {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin: 0.75rem 0 1.5rem 0;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    margin: 1rem 0 2rem 0;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
   }
-  .status-line a { text-decoration: underline; cursor: pointer; }
+  .status-line a { color: var(--accent); }
 
-  .badge { vertical-align: middle; margin-left: 3px; }
+  .badge { 
+    vertical-align: middle; 
+    margin-left: 6px;
+    border-radius: 3px;
+    display: inline-block;
+  }
 
-  .article-list { list-style: none; margin: 0; padding: 0; }
-  .article-list li { border-bottom: 1px solid var(--border); padding: 1rem 0; }
-  .article-list h2 { font-size: 1.15rem; margin: 0 0 0.3rem 0; }
-  .article-list h2 a { text-decoration: none; }
-  .article-list h2 a:hover { text-decoration: underline; }
+  /* Article list (home view) */
+  .article-list { 
+    list-style: none; 
+    margin: 0; 
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
 
-  .article-meta { font-size: 0.85rem; color: var(--muted); }
+  .article-list li { 
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.2s;
+  }
+
+  .article-list li:hover {
+    border-color: var(--accent);
+    background: var(--surface-alt);
+  }
+
+  .article-list h2 { 
+    font-size: 1.3rem; 
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+
+  .article-list h2 a { 
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .article-list h2 a:hover { 
+    text-decoration: underline;
+  }
+
+  .article-meta { 
+    font-size: 0.85rem; 
+    color: var(--fg-muted);
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
 
   .visibility-tag {
     display: inline-block;
+    background: var(--surface-alt);
     border: 1px solid var(--border);
     font-size: 0.7rem;
-    padding: 0.05rem 0.35rem;
-    margin-left: 0.4rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 4px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+    font-weight: 600;
   }
 
-  .article-title { font-size: 1.8rem; margin-bottom: 0.25rem; }
-  article.article-body { margin-top: 1.5rem; }
-  .article-actions { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
-  .article-actions a { margin-right: 1rem; }
+  /* Article view */
+  .article-title { 
+    font-size: 2.2rem; 
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
 
-  .ql-editor { padding: 0; font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  article.article-body { 
+    margin: 2rem 0;
+    line-height: 1.8;
+  }
 
-  .html-embed-block {
-    border: 1px dashed var(--border);
-    padding: 0.5rem;
+  article.article-body h1, article.article-body h2, article.article-body h3 {
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  article.article-body p {
+    margin: 0.75rem 0;
+  }
+
+  article.article-body a {
+    text-decoration: underline;
+  }
+
+  article.article-body code {
+    background: var(--surface-alt);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  article.article-body pre {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+
+  article.article-body blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    margin-left: 0;
+    color: var(--fg-muted);
+  }
+
+  article.article-body ul, article.article-body ol {
+    margin: 0.75rem 0;
+    padding-left: 2rem;
+  }
+
+  article.article-body li {
     margin: 0.5rem 0;
-    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .article-actions { 
+    margin-top: 2rem; 
+    border-top: 1px solid var(--border); 
+    padding-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
+
+  .article-actions a { 
+    color: var(--accent);
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+
+  .article-actions a:hover {
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+  }
+
+  .ql-editor { 
+    padding: 1rem; 
+    font-family: inherit;
+    background: var(--surface-alt);
+    color: var(--fg);
+    min-height: 450px;
+  }
+
+  .ql-editor.ql-blank::before {
+    color: var(--fg-muted);
+  }
+
+  /* HTML embed styling */
+  .html-embed-block {
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(59, 130, 246, 0.05);
+    overflow-x: auto;
+  }
+
+  .html-embed-block h1, .html-embed-block h2, .html-embed-block h3,
+  .html-embed-block h4, .html-embed-block h5, .html-embed-block h6 {
+    margin-top: 0;
   }
 
   /* Login modal */
@@ -110,7 +272,8 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
     z-index: 1000;
     align-items: center;
     justify-content: center;
@@ -119,84 +282,209 @@
 
   .modal-box {
     border: 1px solid var(--border);
-    background: var(--bg);
-    padding: 1.5rem;
+    background: var(--surface);
+    padding: 2rem;
     width: 100%;
-    max-width: 320px;
+    max-width: 380px;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   }
-  .modal-box h2 { margin-top: 0; font-size: 1.1rem; }
-  .modal-box form { display: flex; flex-direction: column; gap: 0.6rem; }
+  .modal-box h2 { 
+    margin-top: 0; 
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .modal-box form { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem;
+  }
 
   .modal-error {
-    font-size: 0.8rem;
-    border: 1px solid var(--border);
-    padding: 0.4rem;
+    font-size: 0.85rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--danger);
+    color: #fca5a5;
+    padding: 0.75rem;
+    border-radius: 6px;
     display: none;
   }
   .modal-error.show { display: block; }
 
-  .modal-close { margin-top: 0.75rem; font-size: 0.8rem; text-align: right; }
+  .modal-close { 
+    margin-top: 1rem; 
+    font-size: 0.8rem; 
+    text-align: center; 
+  }
+  .modal-close a { color: var(--accent); }
 
   footer.site-footer {
     border-top: 1px solid var(--border);
-    margin-top: 2rem;
-    padding: 1rem;
+    margin-top: 3rem;
+    padding: 2rem 1rem;
     font-size: 0.8rem;
-    color: var(--muted);
+    color: var(--fg-muted);
     text-align: center;
   }
 
-  /* Editor view — the one section allowed to be dense/cluttered */
-  .field-row { margin-bottom: 1rem; }
-  .field-row label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; }
-  .field-row input[type="text"], .field-row select { width: 100%; }
+  /* Editor view */
+  .field-row { margin-bottom: 1.5rem; }
+  .field-row label { 
+    display: block; 
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--fg);
+  }
+  .field-row input[type="text"], .field-row select { 
+    width: 100%; 
+  }
 
   #editor-container {
-    min-height: 400px;
+    min-height: 450px;
     border: 1px solid var(--border);
     border-top: none;
-    background: var(--bg);
+    background: var(--surface-alt);
+    border-radius: 0 0 6px 6px;
   }
-  #toolbar { border: 1px solid var(--border); border-radius: 0; }
 
-  .own-articles-list { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
-  .own-articles-list ul { list-style: none; margin: 0; padding: 0; }
+  #toolbar { 
+    border: 1px solid var(--border); 
+    border-radius: 6px 6px 0 0;
+    background: var(--surface);
+    padding: 0.5rem;
+  }
+
+  .own-articles-list { 
+    margin-top: 2.5rem; 
+    border-top: 1px solid var(--border); 
+    padding-top: 1.5rem; 
+  }
+
+  .own-articles-list h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+  }
+
+  .own-articles-list ul { 
+    list-style: none; 
+    margin: 0; 
+    padding: 0; 
+  }
+
   .own-articles-list li {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    border-bottom: 1px solid var(--border);
-    padding: 0.5rem 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
     font-size: 0.9rem;
+    align-items: center;
   }
 
-  .editor-actions { margin-top: 1rem; display: flex; gap: 0.6rem; align-items: center; }
-  .save-status { font-size: 0.85rem; color: var(--muted); }
-  .gate-message { border: 1px solid var(--border); padding: 1rem; }
+  .own-articles-list li:hover {
+    background: var(--surface-alt);
+  }
 
-  /* Quill ships a light "snow" theme by default — re-skin it to match
-     the black background instead of pulling in a whole new theme. */
-  .ql-toolbar.ql-snow { background: var(--bg); border-color: var(--border); }
-  .ql-container.ql-snow { border-color: var(--border); }
-  .ql-snow .ql-stroke { stroke: var(--fg); }
-  .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: var(--fg); }
-  .ql-snow .ql-picker { color: var(--fg); }
-  .ql-snow .ql-picker-label { border-color: transparent; }
-  .ql-snow .ql-picker-options { background: var(--bg); border-color: var(--border); }
-  .ql-snow .ql-picker.ql-expanded .ql-picker-label { border-color: var(--border); }
+  .own-articles-list a {
+    color: var(--accent);
+    margin: 0 0.5rem;
+  }
+
+  .editor-actions { 
+    margin-top: 1.5rem; 
+    display: flex; 
+    gap: 0.75rem; 
+    align-items: center;
+  }
+
+  .save-status { 
+    font-size: 0.85rem; 
+    color: var(--fg-muted);
+    margin-left: auto;
+  }
+
+  .save-status a { color: var(--accent); }
+
+  .gate-message { 
+    border: 1px solid var(--border); 
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 1.5rem; 
+  }
+
+  /* Quill theme customization */
+  .ql-toolbar.ql-snow { 
+    background: var(--surface); 
+    border-color: var(--border); 
+  }
+  .ql-container.ql-snow { 
+    border-color: var(--border);
+    background: var(--surface-alt);
+  }
+  .ql-snow .ql-stroke { 
+    stroke: var(--fg); 
+  }
+  .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { 
+    fill: var(--fg); 
+  }
+  .ql-snow .ql-picker { 
+    color: var(--fg); 
+  }
+  .ql-snow .ql-picker-label { 
+    border-color: transparent; 
+    color: var(--fg);
+  }
+  .ql-snow .ql-picker-options { 
+    background: var(--surface); 
+    border-color: var(--border); 
+  }
+  .ql-snow .ql-picker-options .ql-selected,
+  .ql-snow .ql-picker-options .ql-option:hover {
+    color: var(--accent);
+  }
+  .ql-snow .ql-picker.ql-expanded .ql-picker-label { 
+    border-color: var(--border); 
+  }
   .ql-snow .ql-tooltip {
-    background: var(--bg);
+    background: var(--surface);
     color: var(--fg);
     border: 1px solid var(--border);
-    box-shadow: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
   .ql-snow .ql-tooltip input[type="text"] {
-    background: var(--bg);
+    background: var(--surface-alt);
     color: var(--fg);
     border: 1px solid var(--border);
   }
   .ql-snow .ql-tooltip a.ql-action::after,
-  .ql-snow .ql-tooltip a.ql-remove::before { color: var(--fg); }
+  .ql-snow .ql-tooltip a.ql-remove::before { 
+    color: var(--fg); 
+  }
+  .ql-snow a.ql-tooltip-action { color: var(--accent); }
+
+  .ql-toolbar button:hover,
+  .ql-toolbar button.ql-active,
+  .ql-toolbar button:focus,
+  .ql-toolbar button.ql-active,
+  .ql-toolbar .ql-picker-label:hover,
+  .ql-toolbar .ql-picker-item:hover,
+  .ql-toolbar .ql-picker-item.ql-selected {
+    color: var(--accent);
+  }
+
+  /* Delete button styling */
+  #delete-btn {
+    background: var(--danger);
+    border-color: var(--danger);
+  }
+  #delete-btn:hover {
+    background: #dc2626;
+  }
 </style>
 </head>
 <body>
@@ -210,7 +498,7 @@
       <ul class="article-list" id="article-list"><li>Loading articles…</li></ul>
     </div>
 
-    <!-- ARTICLE VIEW: single article, reached via ?article=ID (this IS each article's unique link) -->
+    <!-- ARTICLE VIEW: single article, reached via ?article=ID -->
     <div id="view-article" style="display:none;">
       <div id="article-root"><p>Loading…</p></div>
     </div>
@@ -227,13 +515,13 @@
 
         <div class="field-row">
           <label for="article-title">Title</label>
-          <input type="text" id="article-title" placeholder="Article title" />
+          <input type="text" id="article-title" placeholder="Enter a descriptive title…" />
         </div>
 
         <div class="field-row">
-          <label for="article-visibility">Visibility label (badge shown on the article — does not restrict reading)</label>
+          <label for="article-visibility">Visibility label</label>
           <select id="article-visibility">
-            <option value="public">None</option>
+            <option value="public">Public</option>
             <option value="verified">Verified only</option>
             <option value="staff">Staff only</option>
           </select>
@@ -277,13 +565,7 @@
             <select class="ql-background"></select>
           </span>
           <span class="ql-formats">
-            <select class="ql-font"></select>
-          </span>
-          <span class="ql-formats">
-            <button class="ql-clean"></button>
-          </span>
-          <span class="ql-formats">
-            <button id="ql-html-embed-btn" type="button" title="Insert raw HTML block">&lt;/&gt;</button>
+            <button id="ql-html-embed-btn" type="button" title="Insert custom HTML block">HTML</button>
           </span>
         </div>
         <div id="editor-container"></div>
@@ -306,7 +588,7 @@
     Core 09 Studios® 2026-2027. All rights reserved.
   </footer>
 
-  <!-- Login modal (hidden until keybind is pressed) -->
+  <!-- Login modal -->
   <div class="modal-overlay" id="login-modal-overlay">
     <div class="modal-box">
       <h2>Log in</h2>
@@ -385,7 +667,7 @@
 
     function formatDate(ts) {
       if (!ts || !ts.toDate) return "";
-      return ts.toDate().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+      return ts.toDate().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
     }
 
     function renderBadges(profile) {
@@ -466,7 +748,7 @@
       const name = (currentProfile && currentProfile.username) || currentUser.email;
       const badges = renderBadges(currentProfile);
       const newArticleHref = "?editor=1";
-      el.innerHTML = `Logged in as ${name}${badges} — <a href="${newArticleHref}">New article</a> · <a id="status-logout" href="javascript:void(0)">Log out</a>`;
+      el.innerHTML = `<span>Logged in as <strong>${escapeHtml(name)}</strong>${badges}</span><a href="${newArticleHref}">✏️ New article</a><a id="status-logout" href="javascript:void(0)">Log out</a>`;
       document.getElementById("status-logout").addEventListener("click", () => signOut(auth));
     }
 
@@ -516,7 +798,7 @@
           const badges = renderBadges({ verified: data.authorVerified, staff: data.authorStaff });
           li.innerHTML = `
             <h2><a href="?article=${encodeURIComponent(docSnap.id)}">${escapeHtml(data.title || "Untitled")}</a>${tag}</h2>
-            <div class="article-meta">by ${escapeHtml(data.authorUsername || "unknown")}${badges} — ${formatDate(data.createdAt)}</div>
+            <div class="article-meta"><span>by ${escapeHtml(data.authorUsername || "unknown")}${badges}</span><span>${formatDate(data.createdAt)}</span></div>
           `;
           listEl.appendChild(li);
         });
@@ -535,7 +817,7 @@
         if (!el || !articleData) return;
         const canManage = currentUser && (currentUser.uid === articleData.authorId || (currentProfile && currentProfile.staff));
         if (!canManage) { el.innerHTML = ""; return; }
-        el.innerHTML = `<a href="?editor=${encodeURIComponent(articleId)}">Edit</a><a id="delete-link" href="javascript:void(0)">Delete</a>`;
+        el.innerHTML = `<a href="?editor=${encodeURIComponent(articleId)}">Edit</a><a id="delete-link" href="javascript:void(0)" style="color: #ef4444; border-color: #ef4444;">Delete</a>`;
         document.getElementById("delete-link").addEventListener("click", async () => {
           if (!confirm("Delete this article? This cannot be undone.")) return;
           try {
@@ -563,7 +845,7 @@
 
         root.innerHTML = `
           <h1 class="article-title">${escapeHtml(articleData.title || "Untitled")}${tag}</h1>
-          <div class="article-meta">by ${escapeHtml(articleData.authorUsername || "unknown")}${badges} — ${formatDate(articleData.createdAt)}</div>
+          <div class="article-meta"><span>by ${escapeHtml(articleData.authorUsername || "unknown")}${badges}</span><span>${formatDate(articleData.createdAt)}</span></div>
           <article class="article-body" id="article-body"></article>
           <div class="article-actions" id="article-actions"></div>
         `;
@@ -586,7 +868,7 @@
       function initQuill() {
         quill = new Quill("#editor-container", { theme: "snow", modules: { toolbar: "#toolbar" } });
         document.getElementById("ql-html-embed-btn").addEventListener("click", () => {
-          const html = prompt("Paste the raw HTML to embed:");
+          const html = prompt("Paste the raw HTML block:\n\n(Example: <div>Your HTML here</div>)");
           if (html === null || html.trim() === "") return;
           const range = quill.getSelection(true) || { index: quill.getLength() };
           quill.insertEmbed(range.index, "htmlEmbed", html, "user");
@@ -631,7 +913,6 @@
               <span>${escapeHtml(data.title || "Untitled")}</span>
               <span>
                 <a href="?article=${encodeURIComponent(docSnap.id)}">view</a>
-                &nbsp;·&nbsp;
                 <a href="?editor=${encodeURIComponent(docSnap.id)}">edit</a>
               </span>
             `;
@@ -657,7 +938,7 @@
             await updateDoc(doc(db, "articles", editingId), {
               title, visibilityLabel, contentDelta, updatedAt: serverTimestamp(),
             });
-            statusEl.textContent = "Saved.";
+            statusEl.textContent = "✓ Saved.";
           } else {
             const username = (currentProfile && currentProfile.username) || currentUser.email;
             const newId = slugify(title);
@@ -673,7 +954,7 @@
             editingId = newId;
             document.getElementById("delete-btn").style.display = "inline-block";
             document.getElementById("editor-heading").textContent = "Edit article";
-            statusEl.innerHTML = `Published. <a href="?article=${encodeURIComponent(newId)}">View article</a>`;
+            statusEl.innerHTML = `✓ Published. <a href="?article=${encodeURIComponent(newId)}">View article →</a>`;
             history.replaceState(null, "", `?editor=${encodeURIComponent(newId)}`);
           }
           loadOwnArticles();
