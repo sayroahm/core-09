@@ -881,9 +881,9 @@
       <div class="html-modal-content">
         <div class="html-syntax-help">
           <h4>Quick Reference</h4>
-          <p>&lt;div&gt;, &lt;h1-h6&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a href=""&gt; are supported</p>
+          <p>Most standard HTML tags are supported (div, tables, lists, headings, links, images, etc.)</p>
           <p style="margin-top: 0.5rem;">Use inline styles: <code>style="color: #fff; padding: 1rem;"</code></p>
-          <p style="margin-top: 0.5rem;">Scripts, iframes, event handlers (onclick, etc.) and other active content are stripped automatically for site safety.</p>
+          <p style="margin-top: 0.5rem;">Scripts, iframes, forms, and event handlers (onclick, etc.) are stripped automatically for site safety — everything else passes through.</p>
         </div>
         <div class="html-editor-wrapper">
           <div class="html-editor-pane">
@@ -924,11 +924,15 @@
       ]
     };
 
-    // Tags/attrs allowed in user-submitted HTML embed blocks. Anything else
-    // (script, iframe, on*, style-injected url(), etc.) is stripped by DOMPurify.
+    // We rely on DOMPurify's own (large, well-tested) default tag/attribute
+    // allowlist rather than a hand-picked list — a hand-picked list kept
+    // breaking legitimate content (tables, ids, data-* attrs, image sizing,
+    // etc). DOMPurify already strips <script>, on* event handlers, and
+    // javascript:/data: URIs by default regardless of this config; we just
+    // explicitly forbid the few extra tags that shouldn't appear in an
+    // embedded content block.
     const HTML_EMBED_SANITIZE_CONFIG = {
-      ALLOWED_TAGS: ["div", "h1", "h2", "h3", "h4", "h5", "h6", "p", "strong", "em", "a", "br", "span", "ul", "ol", "li", "blockquote", "code", "pre", "img"],
-      ALLOWED_ATTR: ["href", "style", "target", "rel", "src", "alt", "class"],
+      FORBID_TAGS: ["script", "style", "iframe", "object", "embed", "form", "input", "link", "meta", "base"],
     };
 
     function sanitizeEmbedHtml(html) {
